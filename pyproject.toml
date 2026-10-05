@@ -56,6 +56,9 @@ include = ["dcc_patcher", "dcc_patcher.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The pre-push hook runs `python -P -m pytest` (no current directory on sys.path),
+# so name the project root explicitly for test runs; an editable install isn't needed.
+pythonpath = ["."]
 python_files = "test_*.py"
 python_functions = "test_*"
 python_classes = "Test*"
