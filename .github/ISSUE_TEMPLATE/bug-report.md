@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help improve dazzle-claude-code
+about: Create a report to help improve dazzle-claude-code-patcher
 title: "[BUG] "
 labels: bug
 assignees: ''

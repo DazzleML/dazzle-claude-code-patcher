@@ -1,4 +1,4 @@
-"""Shared test fixtures for dazzle-claude-code."""
+"""Shared test fixtures for dazzle-claude-code-patcher."""
 
 import pytest
 from pathlib import Path

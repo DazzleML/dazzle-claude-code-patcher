@@ -3,30 +3,34 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dazzle-claude-code"
+name = "dazzle-claude-code-patcher"
 dynamic = ["version"]
-description = "A new project created from git-repokit-template"
+description = "Windows-first patch tool for the native Claude Code CLI: apply, verify and diagnose community patches across releases."
 readme = "README.md"
-license = {text = "GPL-3.0-or-later"}
+license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "djdarcy", email = "djdarcy@users.noreply.github.com"},
+    {name = "Dustin Darcy (djdarcy)", email = "djdarcy@users.noreply.github.com"},
 ]
-keywords = []
+keywords = ["claude-code", "patcher", "bun", "windows", "anthropic", "cli"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Build Tools",
     "Topic :: Utilities",
 ]
 
+# Standard library only: the patcher must run anywhere Python does, with nothing
+# to install beyond itself.
 dependencies = []
 
 [project.optional-dependencies]
@@ -36,19 +40,19 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/DazzleML/dazzle-claude-code"
-Repository = "https://github.com/DazzleML/dazzle-claude-code"
-Issues = "https://github.com/DazzleML/dazzle-claude-code/issues"
+Homepage = "https://github.com/DazzleML/dazzle-claude-code-patcher"
+Repository = "https://github.com/DazzleML/dazzle-claude-code-patcher"
+Issues = "https://github.com/DazzleML/dazzle-claude-code-patcher/issues"
 
 [project.scripts]
-dazzle-claude-code = "dazzle_claude_code.cli:main"
+dcc-patcher = "dcc_patcher.cli:main"
 
 [tool.setuptools.dynamic]
-version = {attr = "dazzle_claude_code._version.PIP_VERSION"}
+version = {attr = "dcc_patcher._version.PIP_VERSION"}
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["dazzle_claude_code", "dazzle_claude_code.*"]
+include = ["dcc_patcher", "dcc_patcher.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -57,8 +61,9 @@ python_functions = "test_*"
 python_classes = "Test*"
 
 [tool.repokit-common]
-version-source = "dazzle_claude_code/_version.py"
+version-source = "dcc_patcher/_version.py"
 changelog = "CHANGELOG.md"
-repo-url = "https://github.com/DazzleML/dazzle-claude-code"
+repo-url = "https://github.com/DazzleML/dazzle-claude-code-patcher"
 tag-prefix = "v"
-private-patterns = ["private/", "local/", ".env"]
+# poc/out/ holds patched Claude Code builds (proprietary binaries): never commit them.
+private-patterns = ["private/", "local/", ".env", "poc/out/"]

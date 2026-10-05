@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for dazzle-claude-code
+about: Suggest an idea for dazzle-claude-code-patcher
 title: "[FEATURE] "
 labels: enhancement
 assignees: ''

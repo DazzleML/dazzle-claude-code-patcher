@@ -149,7 +149,13 @@ docs/images/bak/
 *.obj
 
 # Project-specific runtime files
-# (add project-specific ignores here)
+# Patched Claude Code builds, extracted module sources and debug logs are
+# Anthropic's proprietary code or derived from it: never commit them.
+poc/out/
+/build-out/
+CLAUDE.local.md
+*.extracted.js
+dz-debug.log
 
 # RepoKit Private Content Protection (DO NOT REMOVE)
 CLAUDE.md

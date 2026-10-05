@@ -1,6 +1,6 @@
-# Contributing to dazzle-claude-code
+# Contributing to dazzle-claude-code-patcher
 
-Thank you for considering contributing to dazzle-claude-code!
+Thank you for considering contributing to dazzle-claude-code-patcher!
 
 ## Development Setup
 
@@ -12,8 +12,8 @@ Thank you for considering contributing to dazzle-claude-code!
 ### Clone and Install
 
 ```bash
-git clone https://github.com/DazzleML/dazzle-claude-code.git
-cd dazzle-claude-code
+git clone https://github.com/DazzleML/dazzle-claude-code-patcher.git
+cd dazzle-claude-code-patcher
 python -m venv .venv
 source .venv/bin/activate        # Linux/Mac
 # or: .venv\Scripts\activate     # Windows
@@ -29,9 +29,9 @@ python -m pytest tests/ -v
 ## Project Structure
 
 ```
-dazzle_claude_code/
+dcc_patcher/
   __init__.py         # Package initialization
-  __main__.py         # CLI entry (python -m dazzle_claude_code)
+  __main__.py         # CLI entry (python -m dcc_patcher)
   _version.py         # Version (PEP 440)
 tests/
   conftest.py         # Shared fixtures

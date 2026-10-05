@@ -2,11 +2,11 @@
   "repokit_managed": true,
   "generated_by": "repokit",
   "version": "0.4.3",
-  "project_name": "dazzle-claude-code",
+  "project_name": "dazzle-claude-code-patcher",
   "language": "python",
   "branch_strategy": "minimal",
   "private_branch": "private",
-  "description": "A new project created from git-repokit-template",
+  "description": "Windows-first patch tool for the native Claude Code CLI: apply, verify and diagnose community patches across releases.",
   "author": {
     "name": "djdarcy",
     "email": "djdarcy@users.noreply.github.com"

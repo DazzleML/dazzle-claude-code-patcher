@@ -20,13 +20,13 @@
 ## Installation
 
 ```bash
-pip install dazzle_claude_code
+pip install dazzle-claude-code-patcher
 ```
 
 ### From Source
 ```bash
-git clone https://github.com/DazzleML/dazzle-claude-code.git
-cd dazzle-claude-code
+git clone https://github.com/DazzleML/dazzle-claude-code-patcher.git
+cd dazzle-claude-code-patcher
 pip install -e .
 ```
 

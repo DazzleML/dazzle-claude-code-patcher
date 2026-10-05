@@ -1,5 +1,5 @@
 """
-Version information for dazzle-claude-code.
+Version information for dazzle-claude-code-patcher.
 
 This file is the canonical source for version numbers.
 The __version__ string is automatically updated by git hooks
@@ -25,8 +25,8 @@ PHASE = ""  # Per-MINOR feature set: "" (stable), "alpha", "beta", "rc1", etc.
 PROJECT_PHASE = ""  # "prealpha", "alpha", "beta", "stable", or ""
 
 # Auto-updated by git hooks - do not edit manually
-__version__ = "0.1.0"
-__app_name__ = "dazzle-claude-code"
+__version__ = "0.1.0_main_5-20261005-8e9e3a2e"
+__app_name__ = "dazzle-claude-code-patcher"
 
 
 def get_version():
