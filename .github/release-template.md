@@ -20,13 +20,13 @@
 ## Installation
 
 ```bash
-pip install $PACKAGE_NAME
+pip install dazzle_claude_code
 ```
 
 ### From Source
 ```bash
-git clone https://github.com/$GITHUB_ORG/$PROJECT_NAME.git
-cd $PROJECT_NAME
+git clone https://github.com/DazzleML/dazzle-claude-code.git
+cd dazzle-claude-code
 pip install -e .
 ```
 
