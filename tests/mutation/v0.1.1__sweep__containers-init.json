@@ -1,0 +1,17 @@
+{
+  "test_command": ["python", "-P", "-m", "pytest", "tests/test_containers.py", "-q", "-p", "no:cacheprovider"],
+  "mutations": [
+    {"id": "m1", "file": "dcc_patcher/containers/__init__.py", "original": "if data[:2] == b'MZ' and len(data) >= 0x40:", "mutated": "if data[:2] == b'MZ' and len(data) > 0x40:", "note": "boundary: a 0x40-byte file is rejected"},
+    {"id": "m2", "file": "dcc_patcher/containers/__init__.py", "original": "if data[:2] == b'MZ' and len(data) >= 0x40:", "mutated": "if data[:2] == b'MZ':", "note": "removed length guard; short MZ data reads garbage PE offset"},
+    {"id": "m3", "file": "dcc_patcher/containers/__init__.py", "original": "int.from_bytes(data[0x3c:0x40], 'little')", "mutated": "int.from_bytes(data[0x3c:0x40], 'big')", "note": "wrong endianness for e_lfanew"},
+    {"id": "m4", "file": "dcc_patcher/containers/__init__.py", "original": "if data[pe:pe + 4] == b'PE\\0\\0':", "mutated": "if data[pe:pe + 2] == b'PE':", "note": "weakened PE signature check"},
+    {"id": "m5", "file": "dcc_patcher/containers/__init__.py", "original": "        if data[pe:pe + 4] == b'PE\\0\\0':\n            return 'pe'", "mutated": "        return 'pe'", "note": "removed PE signature validation; any MZ is PE"},
+    {"id": "m6", "file": "dcc_patcher/containers/__init__.py", "original": "if data[:4] == b'\\x7fELF':", "mutated": "if data[:3] == b'\\x7fEL':", "note": "truncated ELF magic comparison"},
+    {"id": "m7", "file": "dcc_patcher/containers/__init__.py", "original": "if data[:4] in MACHO_MAGICS:", "mutated": "if data[:4] not in MACHO_MAGICS:", "note": "flipped Mach-O membership"},
+    {"id": "m8", "file": "dcc_patcher/containers/__init__.py", "original": "b'\\xca\\xfe\\xba\\xbe',                        # universal (fat)", "mutated": "# universal (fat) magic dropped", "note": "dropped universal fat Mach-O magic"},
+    {"id": "m9", "file": "dcc_patcher/containers/__init__.py", "original": "b'\\xfe\\xed\\xfa\\xcf', b'\\xcf\\xfa\\xed\\xfe',  # 64-bit", "mutated": "b'\\xfe\\xed\\xfa\\xcf',  # 64-bit", "note": "dropped little-endian 64-bit Mach-O magic"},
+    {"id": "m10", "file": "dcc_patcher/containers/__init__.py", "original": "    if kind == 'elf':\n        raise UnsupportedFormat('ELF (Linux) -- not yet implemented')", "mutated": "    if kind == 'elf':\n        raise UnsupportedFormat('Mach-O (macOS) -- not yet implemented')", "note": "ELF reports wrong format name"},
+    {"id": "m11", "file": "dcc_patcher/containers/__init__.py", "original": "        self.kind = kind\n", "mutated": "        self.kind = ''\n", "note": "kind attribute not preserved"},
+    {"id": "m12", "file": "dcc_patcher/containers/__init__.py", "original": "    if kind == 'macho':\n        raise UnsupportedFormat('Mach-O (macOS) -- not yet implemented')\n    raise UnsupportedFormat('unknown (not an executable dcc-patcher recognises)')", "mutated": "    if kind == 'macho':\n        raise UnsupportedFormat('Mach-O (macOS) -- not yet implemented')\n    return None", "note": "unknown format silently returns None instead of raising"}
+  ]
+}
