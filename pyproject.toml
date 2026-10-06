@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Windows-first patch tool for the native Claude Code CLI: apply, verify and diagnose community patches across releases."
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"  # tomllib, for patch specs
 authors = [
     {name = "Dustin Darcy (djdarcy)", email = "djdarcy@users.noreply.github.com"},
 ]
@@ -21,7 +21,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",

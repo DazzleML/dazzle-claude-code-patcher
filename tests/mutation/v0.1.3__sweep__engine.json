@@ -1,0 +1,17 @@
+{
+  "test_command": ["python", "-P", "-m", "pytest", "tests/test_engine.py", "tests/test_cli.py", "-q", "-p", "no:cacheprovider"],
+  "mutations": [
+    {"id": "M01", "file": "dcc_patcher/engine.py", "original": "if lo <= merged[-1][1]:", "mutated": "if lo < merged[-1][1]:", "note": "touching spans not merged"},
+    {"id": "M02", "file": "dcc_patcher/engine.py", "original": "if len(found) != e.expect:", "mutated": "if len(found) < e.expect:", "note": "expect becomes a minimum; over-matched edits applied (fails open)"},
+    {"id": "M03", "file": "dcc_patcher/engine.py", "original": "status = MISSING if not found else AMBIGUOUS", "mutated": "status = AMBIGUOUS if not found else MISSING", "note": "MISSING/AMBIGUOUS swapped"},
+    {"id": "M04", "file": "dcc_patcher/engine.py", "original": "return bool(spans and _matches(re.compile(p.pattern), text, spans))", "mutated": "return bool(_matches(re.compile(p.pattern), text, spans or [(0, len(text))]))", "note": "upstream probe searches the whole text when its landmark is gone"},
+    {"id": "M05", "file": "dcc_patcher/engine.py", "original": "captured[name] = values.pop() if len(values) == 1 else None", "mutated": "captured[name] = values.pop()", "note": "disagreeing captures keep an arbitrary value"},
+    {"id": "M06", "file": "dcc_patcher/engine.py", "original": "results.append(_one_edit(e, text, captured))", "mutated": "results.append(_one_edit(e, source.decode('latin-1'), captured))", "note": "edits located in the original source, not the edited text"},
+    {"id": "M07", "file": "dcc_patcher/engine.py", "original": "if any(r.status != APPLIES for r in results):", "mutated": "if all(r.status != APPLIES for r in results):", "note": "partial patch reports applies (fails open)"},
+    {"id": "M08", "file": "dcc_patcher/engine.py", "original": "if patch.signature in text:", "mutated": "if text.startswith(patch.signature):", "note": "signature only recognised at offset 0"},
+    {"id": "M09", "file": "dcc_patcher/engine.py", "original": "if e.debug_only and not debug:", "mutated": "if e.debug_only and debug:", "note": "debug-only edits flipped"},
+    {"id": "M10", "file": "dcc_patcher/engine.py", "original": "if name in m.re.groupindex and m.group(name) is not None:", "mutated": "if name not in captured and name in m.re.groupindex and m.group(name) is not None:", "note": "earlier capture wins over the match's own group"},
+    {"id": "M11", "file": "dcc_patcher/engine.py", "original": "return self.status != 'needs-human'", "mutated": "return self.status == 'applies'", "note": "already-applied/upstream-fixed counted as failures"},
+    {"id": "M12", "file": "dcc_patcher/engine.py", "original": "at = s.offset + len(s.before)", "mutated": "at = s.offset + len(s.after)", "note": "splice resumes at the wrong offset"}
+  ]
+}

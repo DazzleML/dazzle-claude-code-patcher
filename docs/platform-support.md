@@ -9,4 +9,4 @@
 | macOS | Mach-O | Planned |
 | Windows / Linux arm64 | PE / ELF | Untested |
 
-The tool itself is Python 3.10+ with the standard library only.
+The tool itself is Python 3.11+ with the standard library only.

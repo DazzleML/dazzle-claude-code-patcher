@@ -7,7 +7,7 @@ the check report -- talks only to the `Container` interface, so supporting a new
 platform means adding one module here, nothing else.
 
 Supported: PE (Windows). ELF and Mach-O are detected and rejected with a clear
-message (design document 2026-10-05, ojura addendum: AC11).
+message (design document 2026-10-05, check AC11).
 """
 from __future__ import annotations
 

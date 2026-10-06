@@ -10,4 +10,11 @@ Entries expire when the file's hash changes (`git hash-object <file>`; first 12 
 - `data[:4] == b'\x7fELF'` -> `data[:3] == b'\x7fEL'` -- **don't-care**: only changes which refusal message a non-ELF file gets. Mode 1, 2026-10-05.
 - `self.kind = kind` -> `self.kind = ''` -- **don't-care**: nothing reads `.kind`; the message carries the format. Mode 1, 2026-10-05.
 
-The heading's hash is filled in when the file is first committed.
+## dcc_patcher/engine.py @ 25be9a7845cc (uncommitted, S3, 2026-10-05)
+
+- `if lo <= merged[-1][1]:` -> `if lo < merged[-1][1]:` -- **don't-care**: only differs when two landmark windows meet exactly and a match straddles the seam. Mode 1, 2026-10-05.
+- `captured[name] = values.pop() if len(values) == 1 else None` -> `values.pop()` -- **don't-care**: no shipped spec reuses a capture whose matches disagree; revisit when one does. Mode 1, 2026-10-05.
+- `if patch.signature in text:` -> `if text.startswith(patch.signature):` -- **don't-care**: with one patch per module the signature is always first; revisit when two patches share a module. Mode 1, 2026-10-05.
+- `if e.debug_only and not debug:` -> `if e.debug_only and debug:` -- **don't-care**: no shipped spec has debug-only edits yet. Mode 1, 2026-10-05.
+
+The `__init__.py` heading's hash is filled in when the file is first committed.

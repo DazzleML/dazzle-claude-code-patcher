@@ -6,7 +6,7 @@ Thank you for considering contributing to dazzle-claude-code-patcher!
 
 ### Prerequisites
 
-- **Python 3.10+**
+- **Python 3.11+** (the patch specs are read with `tomllib`)
 - **Git**
 
 ### Clone and Install

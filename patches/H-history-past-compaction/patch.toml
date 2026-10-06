@@ -1,0 +1,65 @@
+# History past compaction: after a restart or --resume, scroll back past compactions.
+# Proven on Claude Code 2.1.289 (Windows); see README.md beside this file.
+format = 1
+id = "H"
+title = "History past compaction"
+issue = "DazzleML/dazzle-claude-code-patcher#1"
+module_marker = "tengu_chain_parent_cycle"
+signature = "/*dazzle-claude-code:history-v1*/"
+
+# Where the chain walk continues from a compaction row h (map e, chain set g):
+# 1. its logicalParentUuid when that message is not on the chain yet;
+# 2. else the last preserved message not yet on the chain (an earlier compaction,
+#    whose preserved tail sits after the summary);
+# 3. else the original parent of the preserved head, recorded by the prune before
+#    it relinked the head (the last compaction).
+prelude = '''globalThis.__dzCross=(h,e,g)=>{if(h?.type!=="system"||h.subtype!=="compact_boundary")return;let L=h.logicalParentUuid;if(!L)return;let M=h.compactMetadata,U=M?.preservedMessages?.uuids??[],H0=M?.preservedSegment?.headUuid??U[0],S0=g.has(L),w,how="lpu";if(!S0)w=L;else{how="preserved";for(let k=U.length-1;k>=0;k--)if(!g.has(U[k])&&e.has(U[k])){w=U[k];break}if(!w&&H0){how="head-parent";w=globalThis.__dzOrigParent?.[H0]??e.get(H0)?.parentUuid}}globalThis.__dzLog?.(`walk: boundary ${h.uuid} lpu=${L} seen=${S0} via=${how} -> ${w}`);return w};'''
+
+debug_prelude = '''globalThis.__dzLog=(m)=>{try{import.meta.require("fs").appendFileSync(process.env.DZ_DEBUG_LOG||"dcc-debug.log",new Date().toISOString()+" "+m+"\n")}catch{}};globalThis.__dzLog("module loaded");'''
+
+# Fixed upstream if the chain walker itself reads logicalParentUuid: no build from
+# 2.1.278 to 2.1.289 does, and following it is how a fix would cross the boundary.
+# An inference, not a known fix; revisit when Anthropic ships one.
+[upstream_fixed]
+near = "tengu_chain_parent_cycle"
+window = 1500
+pattern = 'logicalParentUuid'
+
+[[edit]]
+name = "loader: always parse the lines before the last compaction"
+pattern = '[\w$]+\(process\.env\.CLAUDE_CODE_DISABLE_PRECOMPACT_SKIP\)'
+replace = '!0'
+
+[[edit]]
+name = "prune: remember where the preserved segment originally attached"
+near = "tengu_relink_walk_broken"
+window = 3000
+pattern = 'if\((?P<D>[\w$]+)\)\{let (?P<he>[\w$]+)=(?P<B>[\w$]+)\.at\(-1\),(?P<ye>[\w$]+)=(?P=D)\.anchorUuid;for\(let (?P<be>[\w$]+) of (?P=B)\)\{let (?P<Ee>[\w$]+)=(?P<e>[\w$]+)\.get\((?P=be)\);'
+replace = 'if(@@D@@){(globalThis.__dzOrigParent??={})[@@B@@[0]]=@@e@@.get(@@B@@[0])?.parentUuid;let @@he@@=@@B@@.at(-1),@@ye@@=@@D@@.anchorUuid;for(let @@be@@ of @@B@@){let @@Ee@@=@@e@@.get(@@be@@);'
+
+[[edit]]
+name = "prune: keep the messages before the last compaction"
+near = "tengu_relink_walk_broken"
+window = 3000
+pattern = 'for\(let (?P<x>[\w$]+) of (?P<V>[\w$]+)\)@@e@@\.delete\((?P=x)\);'
+replace = ''
+
+[[edit]]
+name = "prune: do not rewire the kept messages themselves"
+near = "tengu_relink_walk_broken"
+window = 3000
+pattern = '(?P<E>[\w$]+)\.parentUuid!==null&&(?P<Y>[\w$]+)\.has\((?P=E)\.parentUuid\)\)@@e@@\.set\((?P<b>[\w$]+),\{\.\.\.(?P=E),parentUuid:(?P<t>[\w$]+)\}\)'
+replace = '@@E@@.parentUuid!==null&&@@Y@@.has(@@E@@.parentUuid)&&!@@Y@@.has(@@b@@))@@e@@.set(@@b@@,{...@@E@@,parentUuid:@@t@@})'
+
+[[edit]]
+name = "pre-parse walk: keep lines off the newest chain (file and v5 paths)"
+pattern = '!(?P<n>[\w$]+)\?\.keepAllLeaves&&(?P<buf>[\w$]+)\.length>(?P<lim>[\w$]+)\)(?P=buf)=(?P<walk>[\w$]+)\((?P=buf)\)'
+replace = '!1&&@@buf@@.length>@@lim@@)@@buf@@=@@walk@@(@@buf@@)'
+expect = 2
+
+[[edit]]
+name = "walker: cross a compaction boundary"
+near = "tengu_chain_parent_cycle"
+window = 1500
+pattern = '(?P<g>[\w$]+)\.add\((?P<h>[\w$]+)\.uuid\),(?P<s>[\w$]+)\.push\((?P=h)\);let (?P<w>[\w$]+)=(?P=h)\.parentUuid;if\(!(?P=w)\)break;let (?P<Dw>[\w$]+)=(?P<em>[\w$]+)\.get\((?P=w)\);'
+replace = '@@g@@.add(@@h@@.uuid),@@s@@.push(@@h@@);let @@w@@=@@h@@.parentUuid;if(!@@w@@)@@w@@=globalThis.__dzCross(@@h@@,@@em@@,@@g@@);if(!@@w@@)break;let @@Dw@@=@@em@@.get(@@w@@);'

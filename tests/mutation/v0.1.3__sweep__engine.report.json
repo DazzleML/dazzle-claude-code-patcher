@@ -1,0 +1,176 @@
+{
+  "harness": {
+    "name": "mutation_sweep.py",
+    "version": "0.2.0"
+  },
+  "environment": {
+    "python": "3.12.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "root": ".",
+    "test_command": [
+      "python",
+      "-P",
+      "-m",
+      "pytest",
+      "tests/test_engine.py",
+      "tests/test_cli.py",
+      "-q",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "timestamp": "2026-10-05T13:50:32-04:00"
+  },
+  "results": [
+    {
+      "id": "M01",
+      "file": "dcc_patcher/engine.py",
+      "note": "touching spans not merged",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "M02",
+      "file": "dcc_patcher/engine.py",
+      "note": "expect becomes a minimum; over-matched edits applied (fails open)",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "M03",
+      "file": "dcc_patcher/engine.py",
+      "note": "MISSING/AMBIGUOUS swapped",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "===== FAILURES ===================================\n____________ test_a_missing_anchor_fails_closed_and_writes_nothing ____________\n\nworld = (<function world.<locals>.build at 0x000002B5FFB57740>, WindowsPath('<TEMP>/pytest-of-<user>...l'), WindowsPath('<TEMP>/pytest-of-<user>/pytest-11944/test_a_missing_anchor_fails_cl0'))\ncapsys = <_pytest.capture.CaptureFixture object at 0x000002B5FFA3D730>\n\n    def test_a_missing_anchor_fails_closed_and_writes_nothing(world, capsys):  # AC5\n        build, spec_path, tmp = world\n        exe = build(SOURCE.replace(b'if(!w)break;', b''))\n        assert run('apply', exe, '-o', tmp / 'out.exe', '--patch', spec_path) == 1\n        out, err = capsys.readouterr()\n>       assert re.search(r'MISSING\\s+walker', out) and 'nothing written' in err\nE       AssertionError: assert (None)\nE        +  where None = <function search at 0x000002B5FDD7E480>('MISSING\\\\s+walker', 'T  needs-human  (walker: AMBIGUOUS)\\n    AMBIGUOUS     walker  (found 0, expected 1)\\n    APPLIES       two sites\\n')\nE        +    where <function search at 0x000002B5FDD7E480> = re.search\n\ntests\\test_engine.py:85: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_engine.py::test_a_missing_anchor_fails_closed_and_writes_nothing\n1 failed, 10 passed in 1.60s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_engine.py::test_a_missing_anchor_fails_closed_and_writes_nothing"
+      ]
+    },
+    {
+      "id": "M04",
+      "file": "dcc_patcher/engine.py",
+      "note": "upstream probe searches the whole text when its landmark is gone",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "M05",
+      "file": "dcc_patcher/engine.py",
+      "note": "disagreeing captures keep an arbitrary value",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "M06",
+      "file": "dcc_patcher/engine.py",
+      "note": "edits located in the original source, not the edited text",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "engine_reproduces_the_proof_of_concept_byte_for_byte():     # AC3, in memory\n        sys.path.insert(0, str(ROOT / 'poc'))\n        import patch_history as poc\n        exe = open_container(open(REAL, 'rb').read())\n        as_spec = spec.parse({\n            'format': 1, 'id': 'poc', 'title': 'poc', 'module_marker': poc.MARKER.decode(),\n            'signature': poc.SIGNATURE.decode(), 'prelude': poc.CROSS_PRELUDE.decode(),\n            'edit': [{'name': n, 'pattern': re.escape(old.decode()), 'replace': new.decode()}\n                     for n, old, new in poc.PATCHES]})\n        mine, _ = engine.apply(exe, [as_spec])\n        (k,) = exe.find_module(poc.MARKER)\n        source = exe.source(k)\n        for _, old, new in poc.PATCHES:\n            source = source.replace(old, new)\n>       assert mine == exe.replace_module_source(k, poc.SIGNATURE + poc.CROSS_PRELUDE + source)\nE       AssertionError: assert b'MZx\\x00\\x01...0\\x00\\x00\\x00' == b'MZx\\x00\\x01...0\\x00\\x00\\x00'\nE         \nE         At index 253888288 diff: b'i' != b')'\nE         Use -v to get more diff\n\ntests\\test_engine.py:127: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names\nFAILED tests/test_engine.py::test_the_engine_reproduces_the_proof_of_concept_byte_for_byte\n2 failed, 9 passed in 16.06s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_engine.py::test_the_engine_reproduces_the_proof_of_concept_byte_for_byte",
+        "tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names"
+      ]
+    },
+    {
+      "id": "M07",
+      "file": "dcc_patcher/engine.py",
+      "note": "partial patch reports applies (fails open)",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "555CD2E0>\n\n    def test_a_missing_anchor_fails_closed_and_writes_nothing(world, capsys):  # AC5\n        build, spec_path, tmp = world\n        exe = build(SOURCE.replace(b'if(!w)break;', b''))\n>       assert run('apply', exe, '-o', tmp / 'out.exe', '--patch', spec_path) == 1\nE       AssertionError: assert 0 == 1\nE        +  where 0 = run('apply', WindowsPath('<TEMP>/pytest-of-<user>/pytest-11948/test_a_missing_anchor_fails_cl0/claude.exe'), '-o', (WindowsPath('<TEMP>/pytest-of-<user>/pytest-11948/test_a_missing_anchor_fails_cl0') / 'out.exe'), '--patch', WindowsPath('<TEMP>/pytest-of-<user>/pytest-11948/test_a_missing_anchor_fails_cl0/patch.toml'))\n\ntests\\test_engine.py:83: AssertionError\n---------------------------- Captured stdout call -----------------------------\nT  applies\n    MISSING       walker  (found 0, expected 1)\n    APPLIES       two sites\nwrote <TEMP>\\pytest-of-<user>\\pytest-11948\\test_a_missing_anchor_fails_cl0\\out.exe and <TEMP>\\pytest-of-<user>\\pytest-11948\\test_a_missing_anchor_fails_cl0\\out.exe.dcc-lock.json\n=========================== short test summary info ===========================\nFAILED tests/test_engine.py::test_a_missing_anchor_fails_closed_and_writes_nothing\n1 failed, 10 passed in 1.42s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_engine.py::test_a_missing_anchor_fails_closed_and_writes_nothing"
+      ]
+    },
+    {
+      "id": "M08",
+      "file": "dcc_patcher/engine.py",
+      "note": "signature only recognised at offset 0",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "M09",
+      "file": "dcc_patcher/engine.py",
+      "note": "debug-only edits flipped",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "M10",
+      "file": "dcc_patcher/engine.py",
+      "note": "earlier capture wins over the match's own group",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "F..........                                                              [100%]\n================================== FAILURES ===================================\n_______________ test_two_sites_of_one_edit_keep_their_own_names _______________\n\n    def test_two_sites_of_one_edit_keep_their_own_names():\n        r = engine.locate(spec.parse(tomllib.loads(SPEC)), SOURCE)\n        assert r.status == 'applies'\n>       assert b'!1&&D.length>9)x()' in r.source and b'!1&&Ce.length>9)y()' in r.source\nE       AssertionError: assert (b'!1&&D.length>9)x()' in b'/*dcc-test*//*MARK*/let w=h.parentUuid;if(!w)w=cross(h);if(!w)break;if(!1&&.length>9)x();if(!1&&.length>9)y();')\nE        +  where b'/*dcc-test*//*MARK*/let w=h.parentUuid;if(!w)w=cross(h);if(!w)break;if(!1&&.length>9)x();if(!1&&.length>9)y();' = PatchResult(patch=Patch(id='T', title='test patch', module_marker='MARK', edits=[Edit(name='walker', pattern='let (?P<...c-test*//*MARK*/let w=h.parentUuid;if(!w)w=cross(h);if(!w)break;if(!1&&.length>9)x();if(!1&&.length>9)y();', detail='').source\n\ntests\\test_engine.py:68: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names\n1 failed, 10 passed in 1.75s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names"
+      ]
+    },
+    {
+      "id": "M11",
+      "file": "dcc_patcher/engine.py",
+      "note": "already-applied/upstream-fixed counted as failures",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "n').exists()\n>       assert run('apply', tmp / 'out.exe', '-o', tmp / 'again.exe', '--patch', spec_path) == 0\nE       AssertionError: assert 1 == 0\nE        +  where 1 = run('apply', (WindowsPath('<TEMP>/pytest-of-<user>/pytest-11952/test_applying_to_its_own_outpu0') / 'out.exe'), '-o', (WindowsPath('<TEMP>/pytest-of-<user>/pytest-11952/test_applying_to_its_own_outpu0') / 'again.exe'), '--patch', WindowsPath('<TEMP>/pytest-of-<user>/pytest-11952/test_applying_to_its_own_outpu0/patch.toml'))\n\ntests\\test_engine.py:75: AssertionError\n---------------------------- Captured stdout call -----------------------------\nT  applies\n    APPLIES       walker\n    APPLIES       two sites\nwrote <TEMP>\\pytest-of-<user>\\pytest-11952\\test_applying_to_its_own_outpu0\\out.exe and <TEMP>\\pytest-of-<user>\\pytest-11952\\test_applying_to_its_own_outpu0\\out.exe.dcc-lock.json\nT  already-applied  (signature /*dcc-test*/ present)\n---------------------------- Captured stderr call -----------------------------\ndcc-patcher: a patch needs a human; nothing written\n=========================== short test summary info ===========================\nFAILED tests/test_engine.py::test_applying_to_its_own_output_is_a_no_op - Ass...\n1 failed, 10 passed in 1.76s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_engine.py::test_applying_to_its_own_output_is_a_no_op"
+      ]
+    },
+    {
+      "id": "M12",
+      "file": "dcc_patcher/engine.py",
+      "note": "splice resumes at the wrong offset",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "ry\n        sys.path.insert(0, str(ROOT / 'poc'))\n        import patch_history as poc\n        exe = open_container(open(REAL, 'rb').read())\n        as_spec = spec.parse({\n            'format': 1, 'id': 'poc', 'title': 'poc', 'module_marker': poc.MARKER.decode(),\n            'signature': poc.SIGNATURE.decode(), 'prelude': poc.CROSS_PRELUDE.decode(),\n            'edit': [{'name': n, 'pattern': re.escape(old.decode()), 'replace': new.decode()}\n                     for n, old, new in poc.PATCHES]})\n        mine, _ = engine.apply(exe, [as_spec])\n        (k,) = exe.find_module(poc.MARKER)\n        source = exe.source(k)\n        for _, old, new in poc.PATCHES:\n            source = source.replace(old, new)\n>       assert mine == exe.replace_module_source(k, poc.SIGNATURE + poc.CROSS_PRELUDE + source)\nE       AssertionError: assert b'MZx\\x00\\x01...0\\x00\\x00\\x00' == b'MZx\\x00\\x01...0\\x00\\x00\\x00'\nE         \nE         At index 872 diff: b'j' != b'r'\nE         Use -v to get more diff\n\ntests\\test_engine.py:127: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names\nFAILED tests/test_engine.py::test_applying_to_its_own_output_is_a_no_op - Ass...\nFAILED tests/test_engine.py::test_the_engine_reproduces_the_proof_of_concept_byte_for_byte\n3 failed, 8 passed in 6.95s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_engine.py::test_applying_to_its_own_output_is_a_no_op",
+        "tests/test_engine.py::test_the_engine_reproduces_the_proof_of_concept_byte_for_byte",
+        "tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names"
+      ]
+    }
+  ],
+  "summary": {
+    "survived": 6,
+    "killed": 6
+  },
+  "anomalies": [],
+  "overlap": {
+    "kills": {
+      "tests/test_engine.py::test_a_missing_anchor_fails_closed_and_writes_nothing": [
+        "M03",
+        "M07"
+      ],
+      "tests/test_engine.py::test_applying_to_its_own_output_is_a_no_op": [
+        "M11",
+        "M12"
+      ],
+      "tests/test_engine.py::test_the_engine_reproduces_the_proof_of_concept_byte_for_byte": [
+        "M06",
+        "M12"
+      ],
+      "tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names": [
+        "M06",
+        "M10",
+        "M12"
+      ]
+    },
+    "identical": [],
+    "contained": [
+      [
+        "tests/test_engine.py::test_the_engine_reproduces_the_proof_of_concept_byte_for_byte",
+        "tests/test_engine.py::test_two_sites_of_one_edit_keep_their_own_names"
+      ]
+    ],
+    "killed_without_names": []
+  }
+}

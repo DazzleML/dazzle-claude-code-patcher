@@ -10,10 +10,15 @@ Layout (verified against Claude Code 2.1.289, 2026-10-05):
     (offset u32, length u32) pointers into the payload: name, source, sourcemap,
     bytecode;
   - a module whose bytecode length is 0 is compiled from its source at load
-    (proved by poc/t3_fallback.py: src+nobc printed the edited string).
+    (proved by the proof of concept's t3_fallback test: src+nobc printed the
+    edited string).
 
-Moved from poc/bunexe.py (2026-10-05) and adapted to the Container interface: the
+Moved from the proof of concept's bunexe.py (2026-10-05) and adapted to the Container interface: the
 proof of concept's asserts became ContainerError, which survives `python -O`.
+
+Derived from ojura/claude-patches (MIT, https://github.com/ojura/claude-patches):
+the reading of the Offsets flags word, learned from its ELF handler. No code is
+copied from it.
 """
 import struct
 
@@ -113,7 +118,7 @@ class PeBunExe:
     def verify(self, new_image: bytes, k: int, new_source: bytes) -> None:
         """Raise ContainerError unless new_image holds new_source for module k (with
         its bytecode dropped) and every other module byte-identical to this one.
-        Moved from poc/patch_history.py's post-build checks."""
+        Moved from the proof of concept's post-build checks."""
         check = PeBunExe(new_image)
         _require(check.count == self.count, f'module count changed: {self.count} -> {check.count}')
         _require(check.source(k) == new_source, f'module {k} does not hold the new source')
