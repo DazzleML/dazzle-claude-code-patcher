@@ -1,0 +1,13 @@
+{
+  "test_command": ["python", "-P", "-m", "pytest", "tests/test_cli.py", "tests/test_engine.py", "-q", "-p", "no:cacheprovider"],
+  "mutations": [
+    {"id": "r1", "file": "dcc_patcher/cli.py", "original": "        tag = version if version != 'unknown' else f'unknown-{lock._sha(data)[:12]}'", "mutated": "        tag = version if version == 'unknown' else f'unknown-{lock._sha(data)[:12]}'", "note": "flip unknown-version test"},
+    {"id": "r2", "file": "dcc_patcher/cli.py", "original": "    if args.output and os.path.exists(args.output) and os.path.samefile(args.file, args.output):", "mutated": "    if args.output and os.path.samefile(args.file, args.output) and os.path.exists(args.output):", "note": "swap guard order, samefile raises on missing output"},
+    {"id": "r3", "file": "dcc_patcher/cli.py", "original": "    output = os.path.abspath(output)\n    lock_path", "mutated": "    lock_path", "note": "drop abspath normalization"},
+    {"id": "r4", "file": "dcc_patcher/cli.py", "original": "    except PermissionError:\n        print(f'dcc-patcher: the current build is in use", "mutated": "    except OSError:\n        print(f'dcc-patcher: the current build is in use", "note": "broaden catch beyond PermissionError"},
+    {"id": "r5", "file": "dcc_patcher/builds.py", "original": "        how = 'copy'", "mutated": "        how = 'hardlink'", "note": "wrong how string on fallback"},
+    {"id": "r6", "file": "dcc_patcher/cli.py", "original": "lock_path[:-len('.dcc-lock.json')]", "mutated": "lock_path[:-len('.dcc-lock')]", "note": "wrong slice length"},
+    {"id": "r7", "file": "dcc_patcher/cli.py", "original": "builds.build_name(tag, Path(args.file).suffix)", "mutated": "builds.build_name(tag, '')", "note": "drop file suffix"},
+    {"id": "r8", "file": "dcc_patcher/cli.py", "original": "    except (OSError, ValueError):\n        return False\n    return recorded", "mutated": "    except OSError:\n        return False\n    return recorded", "note": "drop ValueError catch for corrupt lockfile"}
+  ]
+}

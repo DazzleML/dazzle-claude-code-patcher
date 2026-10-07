@@ -17,7 +17,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from . import diagnose, engine, lock, spec
+from . import builds, diagnose, engine, lock, spec
 from ._version import DISPLAY_VERSION
 from .containers import ContainerError, UnsupportedFormat, open_container
 from .spec import SpecError
@@ -67,8 +67,20 @@ def cmd_validate(args) -> int:
     return 0
 
 
+def _refuse_output(output) -> bool:
+    """True, after saying why, when `output` must not be written."""
+    folder = builds.inside_config(output)
+    if folder:
+        print(f'dcc-patcher: refusing to write inside Claude Code\'s config folder ({folder}): '
+              f'{os.path.abspath(output)}', file=sys.stderr)
+        return True
+    return False
+
+
 def cmd_apply(args) -> int:
-    if os.path.exists(args.output) and os.path.samefile(args.file, args.output):
+    if args.output and _refuse_output(args.output):
+        return 2
+    if args.output and os.path.exists(args.output) and os.path.samefile(args.file, args.output):
         print('dcc-patcher: refusing to write over the input; give a different -o', file=sys.stderr)
         return 2
     try:
@@ -79,6 +91,13 @@ def cmd_apply(args) -> int:
     data, exe = _open(args.file)
     if data is None:
         return exe
+    version = _version_of(data)
+    output = args.output
+    if not output:
+        tag = version if version != 'unknown' else f'unknown-{lock._sha(data)[:12]}'
+        output = str(builds.builds_dir() / builds.build_name(tag, Path(args.file).suffix))
+        if _refuse_output(output):
+            return 2
     image, results = engine.apply(exe, patches, debug=args.debug)
     _report(results)
     if not all(r.ok for r in results):
@@ -87,11 +106,33 @@ def cmd_apply(args) -> int:
     if image is None:
         print('nothing to apply; nothing written')
         return 0
-    _write_atomically(args.output, image)
-    lock_path = f'{args.output}.dcc-lock.json'
-    _write_atomically(lock_path, lock.dumps(lock.build(data, image, _version_of(data), exe, results)).encode())
-    print(f'wrote {args.output} and {lock_path}')
+    output = os.path.abspath(output)
+    lock_path = f'{output}.dcc-lock.json'
+    if not args.output and _same_build(lock_path, image):
+        print(f'already built: {output}')
+    else:
+        _write_atomically(output, image)
+        _write_atomically(lock_path, lock.dumps(lock.build(data, image, version, exe, results)).encode())
+        print(f'wrote {output}\n  and {lock_path}')
+    if args.output:
+        return 0
+    try:
+        link, how = builds.point_current(Path(output))
+    except PermissionError:
+        print(f'dcc-patcher: the current build is in use, so it still points at the old one; '
+              f'the new build is at {output}', file=sys.stderr)
+        return 1
+    print(f'{link} -> {Path(output).name} ({how})')
     return 0
+
+
+def _same_build(lock_path, image: bytes) -> bool:
+    """The build at this versioned name is already these bytes (its lockfile says so)."""
+    try:
+        recorded = json.loads(Path(lock_path).read_text()).get('output_sha256')
+    except (OSError, ValueError):
+        return False
+    return recorded == lock._sha(image) and os.path.exists(lock_path[:-len('.dcc-lock.json')])
 
 
 def _report(results, container=None, baseline=None):
@@ -215,7 +256,8 @@ def main(argv=None):
     p.set_defaults(func=cmd_check)
     p = sub.add_parser('apply', help='write a patched copy of a Claude Code executable')
     p.add_argument('file')
-    p.add_argument('-o', '--output', required=True, help='the patched copy (never the input)')
+    p.add_argument('-o', '--output', help='the patched copy (never the input). Default: the builds folder, '
+                   'as claude-dcc-<claude version>+dcc<patcher version>, with claude-dcc pointing at it')
     p.add_argument('--patch', action='append', help='a patch.toml or patch folder (repeatable; default: every bundled patch)')
     p.add_argument('--debug', action='store_true', help='also apply each patch\'s debug prelude and debug-only edits')
     p.set_defaults(func=cmd_apply)

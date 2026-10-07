@@ -1,0 +1,19 @@
+{
+  "test_command": ["python", "-P", "-m", "pytest", "tests/test_cli.py", "tests/test_engine.py", "-q", "-p", "no:cacheprovider"],
+  "mutations": [
+    {"id": "m1", "file": "dcc_patcher/builds.py", "original": "    if (REPO / '.git').exists():\n        return REPO / 'private' / 'builds'", "mutated": "    if not (REPO / '.git').exists():\n        return REPO / 'private' / 'builds'", "note": "flip checkout detection"},
+    {"id": "m2", "file": "dcc_patcher/builds.py", "original": "    if sys.platform == 'win32':", "mutated": "    if sys.platform != 'win32':", "note": "flip platform branch"},
+    {"id": "m3", "file": "dcc_patcher/builds.py", "original": "os.environ.get('LOCALAPPDATA') or os.path.expanduser('~/AppData/Local')", "mutated": "os.path.expanduser('~/AppData/Local') or os.environ.get('LOCALAPPDATA')", "note": "swap or operands, env ignored"},
+    {"id": "m4", "file": "dcc_patcher/builds.py", "original": "    return f'{CURRENT}-{claude_version}+dcc{BASE_VERSION}{suffix}'", "mutated": "    return f'{CURRENT}-{claude_version}+dcc{BASE_VERSION}'", "note": "drop suffix"},
+    {"id": "m5", "file": "dcc_patcher/builds.py", "original": "    return [d.resolve() for d in dirs]", "mutated": "    return list(dirs)", "note": "drop resolve normalization"},
+    {"id": "m6", "file": "dcc_patcher/builds.py", "original": "        if target == d or d in target.parents:", "mutated": "        if target == d:", "note": "only exact match, subfolders allowed"},
+    {"id": "m7", "file": "dcc_patcher/builds.py", "original": "    target = Path(path).resolve()", "mutated": "    target = Path(path)", "note": "dropped resolve"},
+    {"id": "m8", "file": "dcc_patcher/builds.py", "original": "    if os.environ.get('CLAUDE_CONFIG_DIR'):\n        dirs.append(Path(os.environ['CLAUDE_CONFIG_DIR']))", "mutated": "    if False:\n        dirs.append(Path(os.environ['CLAUDE_CONFIG_DIR']))", "note": "ignore CLAUDE_CONFIG_DIR"},
+    {"id": "m9", "file": "dcc_patcher/builds.py", "original": "    if tmp.exists():\n        tmp.unlink()\n", "mutated": "    pass\n", "note": "remove stale tmp cleanup"},
+    {"id": "m10", "file": "dcc_patcher/builds.py", "original": "    except BaseException:\n        tmp.unlink()\n        raise", "mutated": "    except BaseException:\n        raise", "note": "leave tmp on failure"},
+    {"id": "m11", "file": "dcc_patcher/cli.py", "original": "    if not args.output and _same_build(lock_path, image):", "mutated": "    if _same_build(lock_path, image):", "note": "skip rebuild even with -o"},
+    {"id": "m12", "file": "dcc_patcher/cli.py", "original": "    return recorded == lock._sha(image) and os.path.exists(lock_path[:-len('.dcc-lock.json')])", "mutated": "    return recorded == lock._sha(image) or os.path.exists(lock_path[:-len('.dcc-lock.json')])", "note": "and to or"},
+    {"id": "m13", "file": "dcc_patcher/cli.py", "original": "    if args.output and _refuse_output(args.output):\n        return 2", "mutated": "    if _refuse_output(args.output):\n        return 2", "note": "drop output guard, None passed"},
+    {"id": "m14", "file": "dcc_patcher/cli.py", "original": "    if args.output:\n        return 0\n    try:\n        link, how", "mutated": "    if not args.output:\n        return 0\n    try:\n        link, how", "note": "flip early return"}
+  ]
+}

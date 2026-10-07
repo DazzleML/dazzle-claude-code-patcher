@@ -1,0 +1,380 @@
+{
+  "harness": {
+    "name": "mutation_sweep.py",
+    "version": "0.2.0"
+  },
+  "environment": {
+    "python": "3.12.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "root": ".",
+    "test_command": [
+      "python",
+      "-P",
+      "-m",
+      "pytest",
+      "tests/test_cli.py",
+      "tests/test_engine.py",
+      "-q",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "timestamp": "2026-10-07T02:26:31-04:00"
+  },
+  "results": [
+    {
+      "id": "m1",
+      "file": "dcc_patcher/builds.py",
+      "note": "flip checkout detection",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "')])\n    def test_the_default_builds_folder(tmp_path, monkeypatch, platform, var):\n        monkeypatch.delenv('DCC_BUILDS_DIR', raising=False)\n        monkeypatch.setattr(builds_mod.sys, 'platform', platform)\n        monkeypatch.setenv(var, str(tmp_path / 'data'))\n        repo = tmp_path / 'repo'\n        monkeypatch.setattr(builds_mod, 'REPO', repo)\n>       assert builds_mod.builds_dir() == tmp_path / 'data' / 'dazzle-claude-code-patcher' / 'builds'\nE       AssertionError: assert WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12076/test_the_default_builds_folder1/repo/private/builds') == (((WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12076/test_the_default_builds_folder1') / 'data') / 'dazzle-claude-code-patcher') / 'builds')\nE        +  where WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12076/test_the_default_builds_folder1/repo/private/builds') = <function builds_dir at 0x000002D9C6D67F60>()\nE        +    where <function builds_dir at 0x000002D9C6D67F60> = builds_mod.builds_dir\n\ntests\\test_cli.py:229: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]\nFAILED tests/test_cli.py::test_the_default_builds_folder[linux-XDG_DATA_HOME]\n2 failed, 28 passed in 1.51s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_the_default_builds_folder[linux-XDG_DATA_HOME]",
+        "tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]"
+      ]
+    },
+    {
+      "id": "m2",
+      "file": "dcc_patcher/builds.py",
+      "note": "flip platform branch",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "TA_HOME'\n\n    @pytest.mark.parametrize('platform, var', [('win32', 'LOCALAPPDATA'), ('linux', 'XDG_DATA_HOME')])\n    def test_the_default_builds_folder(tmp_path, monkeypatch, platform, var):\n        monkeypatch.delenv('DCC_BUILDS_DIR', raising=False)\n        monkeypatch.setattr(builds_mod.sys, 'platform', platform)\n        monkeypatch.setenv(var, str(tmp_path / 'data'))\n        repo = tmp_path / 'repo'\n        monkeypatch.setattr(builds_mod, 'REPO', repo)\n>       assert builds_mod.builds_dir() == tmp_path / 'data' / 'dazzle-claude-code-patcher' / 'builds'\nE       AssertionError: assert WindowsPath('C:/Users/<user>/AppData/Local/dazzle-claude-code-patcher/builds') == (((WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12077/test_the_default_builds_folder1') / 'data') / 'dazzle-claude-code-patcher') / 'builds')\nE        +  where WindowsPath('C:/Users/<user>/AppData/Local/dazzle-claude-code-patcher/builds') = <function builds_dir at 0x00000157B878BF60>()\nE        +    where <function builds_dir at 0x00000157B878BF60> = builds_mod.builds_dir\n\ntests\\test_cli.py:229: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]\nFAILED tests/test_cli.py::test_the_default_builds_folder[linux-XDG_DATA_HOME]\n2 failed, 28 passed in 1.41s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_the_default_builds_folder[linux-XDG_DATA_HOME]",
+        "tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]"
+      ]
+    },
+    {
+      "id": "m3",
+      "file": "dcc_patcher/builds.py",
+      "note": "swap or operands, env ignored",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "tch.MonkeyPatch object at 0x0000016DB27E6ED0>\nplatform = 'win32', var = 'LOCALAPPDATA'\n\n    @pytest.mark.parametrize('platform, var', [('win32', 'LOCALAPPDATA'), ('linux', 'XDG_DATA_HOME')])\n    def test_the_default_builds_folder(tmp_path, monkeypatch, platform, var):\n        monkeypatch.delenv('DCC_BUILDS_DIR', raising=False)\n        monkeypatch.setattr(builds_mod.sys, 'platform', platform)\n        monkeypatch.setenv(var, str(tmp_path / 'data'))\n        repo = tmp_path / 'repo'\n        monkeypatch.setattr(builds_mod, 'REPO', repo)\n>       assert builds_mod.builds_dir() == tmp_path / 'data' / 'dazzle-claude-code-patcher' / 'builds'\nE       AssertionError: assert WindowsPath('C:/Users/<user>/AppData/Local/dazzle-claude-code-patcher/builds') == (((WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12078/test_the_default_builds_folder0') / 'data') / 'dazzle-claude-code-patcher') / 'builds')\nE        +  where WindowsPath('C:/Users/<user>/AppData/Local/dazzle-claude-code-patcher/builds') = <function builds_dir at 0x0000016DB280FF60>()\nE        +    where <function builds_dir at 0x0000016DB280FF60> = builds_mod.builds_dir\n\ntests\\test_cli.py:229: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]\n1 failed, 29 passed in 1.44s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]"
+      ]
+    },
+    {
+      "id": "m4",
+      "file": "dcc_patcher/builds.py",
+      "note": "drop suffix",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "c.exe.tmp').write_bytes(b'stale')\n        assert apply(exe=exe, spec_path=spec_path) == 0\n        assert '(hardlink)' in capsys.readouterr().out\n>       assert not (builds / '.dcc-claude-dcc.exe.tmp').exists()\nE       AssertionError: assert not True\nE        +  where True = exists()\nE        +    where exists = (WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12079/test_a_stale_temporary_link_le0/builds') / '.dcc-claude-dcc.exe.tmp').exists\n\ntests\\test_cli.py:219: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it\nFAILED tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing\nFAILED tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept\nFAILED tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use - Fai...\nFAILED tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild\nFAILED tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy\nFAILED tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built\nFAILED tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink\n8 failed, 22 passed in 1.30s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink",
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it",
+        "tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built",
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use",
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing",
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy"
+      ]
+    },
+    {
+      "id": "m5",
+      "file": "dcc_patcher/builds.py",
+      "note": "drop resolve normalization",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "me / '.claude' / 'build-out'))\n            code = apply(exe=exe, spec_path=spec_path)\n        elif where == '-o':      # the incident: a relative -o, run from the home folder\n            monkeypatch.chdir(home)\n            code = apply('-o', Path('.claude') / 'build-out' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n        else:                    # a relative CLAUDE_CONFIG_DIR still names the same folder\n            monkeypatch.chdir(exe.parent)\n            monkeypatch.setenv('CLAUDE_CONFIG_DIR', 'test-config')\n            code = apply('-o', exe.parent / 'test-config' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n>       assert code == 2\nE       assert 0 == 2\n\nC:\\code\\claude-projects\\dazzle-claude-code-patcher\\tests\\test_cli.py:125: AssertionError\n---------------------------- Captured stdout call -----------------------------\n  T  applies\n      APPLIES       x1  flag\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12080\\test_apply_refuses_to_write_in2\\test-config\\claude-dcc.exe\n  and C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12080\\test_apply_refuses_to_write_in2\\test-config\\claude-dcc.exe.dcc-lock.json\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]\n1 failed, 29 passed in 1.29s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]"
+      ]
+    },
+    {
+      "id": "m6",
+      "file": "dcc_patcher/builds.py",
+      "note": "only exact match, subfolders allowed",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "nkeypatch.chdir(home)\n            code = apply('-o', Path('.claude') / 'build-out' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n        else:                    # a relative CLAUDE_CONFIG_DIR still names the same folder\n            monkeypatch.chdir(exe.parent)\n            monkeypatch.setenv('CLAUDE_CONFIG_DIR', 'test-config')\n            code = apply('-o', exe.parent / 'test-config' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n>       assert code == 2\nE       assert 0 == 2\n\nC:\\code\\claude-projects\\dazzle-claude-code-patcher\\tests\\test_cli.py:125: AssertionError\n---------------------------- Captured stdout call -----------------------------\n  T  applies\n      APPLIES       x1  flag\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12081\\test_apply_refuses_to_write_in2\\test-config\\claude-dcc.exe\n  and C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12081\\test_apply_refuses_to_write_in2\\test-config\\claude-dcc.exe.dcc-lock.json\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[default]\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[-o]\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]\n3 failed, 27 passed in 1.12s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[-o]",
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]",
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[default]"
+      ]
+    },
+    {
+      "id": "m7",
+      "file": "dcc_patcher/builds.py",
+      "note": "dropped resolve",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "claude' / 'build-out'))\n            code = apply(exe=exe, spec_path=spec_path)\n        elif where == '-o':      # the incident: a relative -o, run from the home folder\n            monkeypatch.chdir(home)\n            code = apply('-o', Path('.claude') / 'build-out' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n        else:                    # a relative CLAUDE_CONFIG_DIR still names the same folder\n            monkeypatch.chdir(exe.parent)\n            monkeypatch.setenv('CLAUDE_CONFIG_DIR', 'test-config')\n            code = apply('-o', exe.parent / 'test-config' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n>       assert code == 2\nE       assert 0 == 2\n\nC:\\code\\claude-projects\\dazzle-claude-code-patcher\\tests\\test_cli.py:125: AssertionError\n---------------------------- Captured stdout call -----------------------------\n  T  applies\n      APPLIES       x1  flag\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12082\\test_apply_refuses_to_write_in1\\home\\.claude\\build-out\\claude-dcc.exe\n  and C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12082\\test_apply_refuses_to_write_in1\\home\\.claude\\build-out\\claude-dcc.exe.dcc-lock.json\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[-o]\n1 failed, 29 passed in 1.26s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[-o]"
+      ]
+    },
+    {
+      "id": "m8",
+      "file": "dcc_patcher/builds.py",
+      "note": "ignore CLAUDE_CONFIG_DIR",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "me / '.claude' / 'build-out'))\n            code = apply(exe=exe, spec_path=spec_path)\n        elif where == '-o':      # the incident: a relative -o, run from the home folder\n            monkeypatch.chdir(home)\n            code = apply('-o', Path('.claude') / 'build-out' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n        else:                    # a relative CLAUDE_CONFIG_DIR still names the same folder\n            monkeypatch.chdir(exe.parent)\n            monkeypatch.setenv('CLAUDE_CONFIG_DIR', 'test-config')\n            code = apply('-o', exe.parent / 'test-config' / 'claude-dcc.exe', exe=exe, spec_path=spec_path)\n>       assert code == 2\nE       assert 0 == 2\n\nC:\\code\\claude-projects\\dazzle-claude-code-patcher\\tests\\test_cli.py:125: AssertionError\n---------------------------- Captured stdout call -----------------------------\n  T  applies\n      APPLIES       x1  flag\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12083\\test_apply_refuses_to_write_in2\\test-config\\claude-dcc.exe\n  and C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12083\\test_apply_refuses_to_write_in2\\test-config\\claude-dcc.exe.dcc-lock.json\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]\n1 failed, 29 passed in 1.25s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]"
+      ]
+    },
+    {
+      "id": "m9",
+      "file": "dcc_patcher/builds.py",
+      "note": "remove stale tmp cleanup",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "n '  T  applies\\n      APPLIES       x1  flag\\nwrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest...eme\\\\pytest-12084\\\\test_a_stale_temporary_link_le0\\\\builds\\\\claude-dcc.exe -> claude-dcc-2.1.999+dcc0.1.4.exe (copy)\\n'\nE        +  where '  T  applies\\n      APPLIES       x1  flag\\nwrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest...eme\\\\pytest-12084\\\\test_a_stale_temporary_link_le0\\\\builds\\\\claude-dcc.exe -> claude-dcc-2.1.999+dcc0.1.4.exe (copy)\\n' = CaptureResult(out='  T  applies\\n      APPLIES       x1  flag\\nwrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-...st-12084\\\\test_a_stale_temporary_link_le0\\\\builds\\\\claude-dcc.exe -> claude-dcc-2.1.999+dcc0.1.4.exe (copy)\\n', err='').out\nE        +    where CaptureResult(out='  T  applies\\n      APPLIES       x1  flag\\nwrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-...st-12084\\\\test_a_stale_temporary_link_le0\\\\builds\\\\claude-dcc.exe -> claude-dcc-2.1.999+dcc0.1.4.exe (copy)\\n', err='') = readouterr()\nE        +      where readouterr = <_pytest.capture.CaptureFixture object at 0x0000024140D05FA0>.readouterr\n\ntests\\test_cli.py:218: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink\n1 failed, 29 passed in 1.21s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ]
+    },
+    {
+      "id": "m10",
+      "file": "dcc_patcher/builds.py",
+      "note": "leave tmp on failure",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "nning_current_build_i0/home'))\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DCC66F16D0>\ncapsys = <_pytest.capture.CaptureFixture object at 0x000001DCC66F20C0>\n\n    def test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept(isolated, monkeypatch, capsys):\n        exe, spec_path, builds, _ = isolated\n        real_replace = os.replace\n    \n        def in_use(src, dst):\n            if Path(dst).name == 'claude-dcc.exe':\n                raise PermissionError(13, 'Access is denied')\n            return real_replace(src, dst)\n    \n        monkeypatch.setattr(os, 'replace', in_use)\n        assert apply(exe=exe, spec_path=spec_path) == 1\n        err = capsys.readouterr().err\n        assert 'the current build is in use' in err and 'Traceback' not in err\n        assert (builds / f'claude-dcc-2.1.999+dcc{BASE_VERSION}.exe').exists()\n>       assert sorted(p.name for p in builds.iterdir() if p.name.startswith('.dcc-')) == []\nE       AssertionError: assert ['.dcc-claude-dcc.exe.tmp'] == []\nE         \nE         Left contains one more item: '.dcc-claude-dcc.exe.tmp'\nE         Use -v to get more diff\n\ntests\\test_cli.py:144: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept\n1 failed, 29 passed in 1.09s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ]
+    },
+    {
+      "id": "m11",
+      "file": "dcc_patcher/cli.py",
+      "note": "skip rebuild even with -o",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": " 0\n>       assert f'wrote {out}' in capsys.readouterr().out\nE       AssertionError: assert 'wrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12086\\\\test_with_o_a_rebuild_always_w0\\\\out.exe' in '  T  applies\\n      APPLIES       x1  flag\\nalready built: C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12086\\\\test_with_o_a_rebuild_always_w0\\\\out.exe\\n'\nE        +  where '  T  applies\\n      APPLIES       x1  flag\\nalready built: C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12086\\\\test_with_o_a_rebuild_always_w0\\\\out.exe\\n' = CaptureResult(out='  T  applies\\n      APPLIES       x1  flag\\nalready built: C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12086\\\\test_with_o_a_rebuild_always_w0\\\\out.exe\\n', err='').out\nE        +    where CaptureResult(out='  T  applies\\n      APPLIES       x1  flag\\nalready built: C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12086\\\\test_with_o_a_rebuild_always_w0\\\\out.exe\\n', err='') = readouterr()\nE        +      where readouterr = <_pytest.capture.CaptureFixture object at 0x00000197D5EF7B30>.readouterr\n\ntests\\test_cli.py:200: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_with_o_a_rebuild_always_writes - AssertionErro...\n1 failed, 29 passed in 1.20s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_with_o_a_rebuild_always_writes"
+      ]
+    },
+    {
+      "id": "m12",
+      "file": "dcc_patcher/cli.py",
+      "note": "and to or",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "_patches_at_the_sa0/home'))\ncapsys = <_pytest.capture.CaptureFixture object at 0x000001B73CF75880>\n\n    def test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built(isolated, capsys):\n        exe, spec_path, builds, _ = isolated\n        assert apply(exe=exe, spec_path=spec_path) == 0\n        spec_path.write_text(SPEC.replace(\"replace = 'keep=!1'\", \"replace = 'keep=!1/*v2*/'\"))\n        capsys.readouterr()\n        assert apply(exe=exe, spec_path=spec_path) == 0\n>       assert 'already built' not in capsys.readouterr().out\nE       AssertionError: assert 'already built' not in '  T  applie...(hardlink)\\n'\nE         \nE         'already built' is contained here:\nE             T  applies\nE                 APPLIES       x1  flag\nE           already built: C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12087\\test_changed_patches_at_the_sa0\\builds\\claude-dcc-2.1.999+dcc0.1.4.exe\nE         ? +++++++++++++\nE           C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12087\\test_changed_patches_at_the_sa0\\builds\\claude-dcc.exe -> claude-dcc-2.1.999+dcc0.1.4.exe (hardlink)\n\ntests\\test_cli.py:209: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built\n1 failed, 29 passed in 1.09s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built"
+      ]
+    },
+    {
+      "id": "m13",
+      "file": "dcc_patcher/cli.py",
+      "note": "drop output guard, None passed",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "path, str):\n>                   raise TypeError(\n                        \"argument should be a str or an os.PathLike \"\n                        \"object where __fspath__ returns a str, \"\n                        f\"not {type(path).__name__!r}\")\nE                   TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'NoneType'\n\nC:\\Python312\\Lib\\pathlib.py:373: TypeError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it\nFAILED tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing\nFAILED tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[default]\nFAILED tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept\nFAILED tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use - Typ...\nFAILED tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild\nFAILED tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy\nFAILED tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built\nFAILED tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink\n9 failed, 21 passed in 1.42s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink",
+        "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[default]",
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it",
+        "tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built",
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use",
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing",
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy"
+      ]
+    },
+    {
+      "id": "m14",
+      "file": "dcc_patcher/cli.py",
+      "note": "flip early return",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "ag\\nwrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-...treme\\\\pytest-12089\\\\test_a_stale_temporary_link_le0\\\\builds\\\\claude-dcc-2.1.999+dcc0.1.4.exe.dcc-lock.json\\n', err='').out\nE        +    where CaptureResult(out='  T  applies\\n      APPLIES       x1  flag\\nwrote C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-...treme\\\\pytest-12089\\\\test_a_stale_temporary_link_le0\\\\builds\\\\claude-dcc-2.1.999+dcc0.1.4.exe.dcc-lock.json\\n', err='') = readouterr()\nE        +      where readouterr = <_pytest.capture.CaptureFixture object at 0x0000020D8D47D4F0>.readouterr\n\ntests\\test_cli.py:218: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it\nFAILED tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing\nFAILED tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept\nFAILED tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use - Fai...\nFAILED tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy\nFAILED tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute\nFAILED tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink\n7 failed, 23 passed in 1.20s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink",
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it",
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use",
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing",
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy"
+      ]
+    }
+  ],
+  "summary": {
+    "killed": 14
+  },
+  "anomalies": [],
+  "overlap": {
+    "kills": {
+      "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild": [
+        "m13",
+        "m4"
+      ],
+      "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept": [
+        "m10",
+        "m13",
+        "m14",
+        "m4"
+      ],
+      "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink": [
+        "m13",
+        "m14",
+        "m4",
+        "m9"
+      ],
+      "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[-o]": [
+        "m6",
+        "m7"
+      ],
+      "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[CLAUDE_CONFIG_DIR]": [
+        "m5",
+        "m6",
+        "m8"
+      ],
+      "tests/test_cli.py::test_apply_refuses_to_write_inside_claude_codes_config_folder[default]": [
+        "m13",
+        "m6"
+      ],
+      "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it": [
+        "m13",
+        "m14",
+        "m4"
+      ],
+      "tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built": [
+        "m12",
+        "m13",
+        "m4"
+      ],
+      "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use": [
+        "m13",
+        "m14",
+        "m4"
+      ],
+      "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing": [
+        "m13",
+        "m14",
+        "m4"
+      ],
+      "tests/test_cli.py::test_the_default_builds_folder[linux-XDG_DATA_HOME]": [
+        "m1",
+        "m2"
+      ],
+      "tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]": [
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "tests/test_cli.py::test_with_o_a_rebuild_always_writes": [
+        "m11"
+      ],
+      "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute": [
+        "m14"
+      ],
+      "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy": [
+        "m13",
+        "m14",
+        "m4"
+      ]
+    },
+    "identical": [
+      [
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it",
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use",
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing",
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy"
+      ]
+    ],
+    "contained": [
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ],
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ],
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it"
+      ],
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_changed_patches_at_the_same_versions_rebuild_rather_than_report_already_built"
+      ],
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use"
+      ],
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing"
+      ],
+      [
+        "tests/test_cli.py::test_a_corrupt_lockfile_at_the_versioned_name_means_rebuild",
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy"
+      ],
+      [
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ],
+      [
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ],
+      [
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ],
+      [
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ],
+      [
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ],
+      [
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ],
+      [
+        "tests/test_cli.py::test_the_default_builds_folder[linux-XDG_DATA_HOME]",
+        "tests/test_cli.py::test_the_default_builds_folder[win32-LOCALAPPDATA]"
+      ],
+      [
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ],
+      [
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ],
+      [
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_apply_without_o_writes_a_versioned_build_and_points_the_current_name_at_it"
+      ],
+      [
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_only_an_exe_in_use_is_reported_as_in_use"
+      ],
+      [
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothing"
+      ],
+      [
+        "tests/test_cli.py::test_with_o_there_is_no_current_name_and_the_path_is_printed_absolute",
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy"
+      ],
+      [
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy",
+        "tests/test_cli.py::test_a_running_current_build_is_one_line_and_the_versioned_build_is_kept"
+      ],
+      [
+        "tests/test_cli.py::test_without_hardlinks_the_current_name_is_a_copy",
+        "tests/test_cli.py::test_a_stale_temporary_link_left_by_a_killed_run_does_not_block_the_hardlink"
+      ]
+    ],
+    "killed_without_names": []
+  }
+}

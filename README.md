@@ -46,14 +46,19 @@ dcc-patcher --version
 # Does every patch still apply to this build? (read-only)
 dcc-patcher check %USERPROFILE%\.local\bin\claude.exe
 
-# Build a patched copy beside it, with a lockfile recording every edit
-dcc-patcher apply %USERPROFILE%\.local\bin\claude.exe -o build-out\claude-dcc.exe
+# Build a patched copy into the builds folder, with a lockfile recording every edit
+dcc-patcher apply %USERPROFILE%\.local\bin\claude.exe
+#   wrote <builds>\claude-dcc-2.1.292+dcc0.1.5.exe
+#     and <builds>\claude-dcc-2.1.292+dcc0.1.5.exe.dcc-lock.json
+#   <builds>\claude-dcc.exe -> claude-dcc-2.1.292+dcc0.1.5.exe (hardlink)
 
 # Run the patched copy instead of claude
-build-out\claude-dcc.exe --resume
+<builds>\claude-dcc.exe --resume
 ```
 
-After Claude Code updates, run `check` again. Every edit `APPLIES`: run `apply` again. An edit fails: nothing is written, and `check --baseline build-out\claude-dcc.exe.dcc-lock.json` shows what changed at its site. Other commands: `inspect <exe>` (version, modules, where a string lives) and `validate [patch.toml ...]` (is a patch spec well formed). Exit codes: 0 fine, 1 a patch needs a human, 2 a usage error or an unsupported file.
+**The builds folder** is the same whatever folder you run `apply` from: `private\builds\` in a checkout of this repository, otherwise `%LOCALAPPDATA%\dazzle-claude-code-patcher\builds\` (`~/.local/share/dazzle-claude-code-patcher/builds/` on Linux and macOS); set `DCC_BUILDS_DIR` to choose another. Each build is named after both versions, so older builds stay for rollback, and `claude-dcc.exe` points at the newest. Rebuilding the same versions says `already built`. If `claude-dcc.exe` is running, `apply` keeps the new versioned build, says the current name still points at the old one, and exits 1. `-o <path>` writes exactly that file instead, with no `claude-dcc.exe` link. `apply` prints absolute paths, and refuses to write inside Claude Code's own config folder (`~/.claude`, or `CLAUDE_CONFIG_DIR`).
+
+After Claude Code updates, run `check` again. Every edit `APPLIES`: run `apply` again. An edit fails: nothing is written, and `check --baseline <builds>\claude-dcc.exe.dcc-lock.json` shows what changed at its site. Other commands: `inspect <exe>` (version, modules, where a string lives) and `validate [patch.toml ...]` (is a patch spec well formed). Exit codes: 0 fine, 1 a patch needs a human, 2 a usage error or an unsupported file.
 
 The patched copy has its code signature removed (any edit invalidates it), so antivirus or SmartScreen may question it the first time. The official `claude.exe` and its updater are never touched.
 

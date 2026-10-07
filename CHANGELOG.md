@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-10-07
+
+### Added
+
+- **Versioned builds in one fixed folder.** `dcc-patcher apply <claude.exe>` with no `-o` names each build after both versions, for example `claude-dcc-2.1.292+dcc0.1.5.exe`, with its lockfile beside it. Older builds stay for rollback.
+  - The builds folder is the same whatever folder `apply` is run from: `private\builds\` in a checkout of this repository, otherwise `%LOCALAPPDATA%\dazzle-claude-code-patcher\builds\` (`~/.local/share/...` on Linux and macOS). `DCC_BUILDS_DIR` overrides it.
+  - `claude-dcc.exe` in that folder points at the newest build: a hardlink, or a copy where hardlinks aren't available.
+  - Rebuilding the same versions reports `already built` and writes nothing. Changed patches at the same versions rebuild.
+  - If `claude-dcc.exe` is running, the new build is kept, one line says the current name still points at the old one, and the exit code is 1.
+
+### Changed
+
+- **`apply` prints absolute paths,** so a misplaced build is obvious.
+- **`apply` refuses to write inside Claude Code's own config folder** (`~/.claude`, or `CLAUDE_CONFIG_DIR`), with or without `-o`, and exits 2. A relative `-o` run from `~/.claude` once put a 258 MB build there.
+- `-o` is now optional; with it, `apply` writes exactly that file, as before, with no `claude-dcc.exe` link.
+
 ## [0.1.4] - 2026-10-07
 
 ### Added
@@ -71,7 +87,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.1...v0.1.2
