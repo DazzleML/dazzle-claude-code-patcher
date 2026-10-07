@@ -1,0 +1,27 @@
+# Banner label, flicker-free header: the same label as patch B, for the header drawn
+# in Claude Code's flicker-free (fullscreen) rendering mode, which builds its banner
+# in a different module from the classic one.
+#   stock:    Claude Code v2.1.291
+#   patched:  Dazzle Claude Code v2.1.291 (middle dot) dcc 0.1.3
+# Only the drawn text changes; the version constant and the name Claude Code gives
+# MCP and language servers are untouched.
+format = 1
+id = "B2"
+title = "Banner label (flicker-free header)"
+issue = "DazzleML/dazzle-claude-code-patcher#1"
+
+# A status message that sits beside this header. In one module on every saved build
+# 2.1.278-2.1.291, and that module has exactly one title and one version suffix.
+module_marker = "Using flicker-free rendering"
+signature = "/*dazzle-claude-code:banner-label-flicker-free-v1*/"
+
+[[edit]]
+name = "flicker-free banner: Dazzle title"
+pattern = '\{bold:!0,children:"Claude Code"\}'
+replace = '{bold:!0,children:"Dazzle Claude Code"}'
+
+[[edit]]
+name = "flicker-free banner: the patcher's version after Claude Code's"
+pattern = '\{dimColor:!0,children:\["v",(?P<ver>[\w$]+)\]\}'
+# The separator is a middle dot (code 183), built in JavaScript so the spec stays ASCII.
+replace = '{dimColor:!0,children:["v",@@ver@@," "+String.fromCharCode(183)+" dcc @@dcc_version@@"]}'

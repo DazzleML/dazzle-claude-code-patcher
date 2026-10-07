@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-10-07
+
+### Added
+
+- **Banner label:** a patched build's session header reads, for example, `Dazzle Claude Code v2.1.291 · dcc 0.1.3` instead of `Claude Code v2.1.291`.
+  - Claude Code draws that header in two places, one for each rendering mode, so there are two small patches: `patches/B-banner-label/` for the classic header and `patches/B2-banner-label-flicker-free/` for the flicker-free one.
+  - Only the drawn text changes. The version constant, and the name Claude Code gives MCP and language servers, are untouched.
+  - Both apply unchanged on every saved build from 2.1.278 through 2.1.292.
+
 ## [0.1.3] - 2026-10-05
 
 ### Added
@@ -62,7 +71,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.0...v0.1.1

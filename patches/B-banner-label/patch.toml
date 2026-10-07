@@ -1,0 +1,25 @@
+# Banner label: the header at the top of every session says it is the Dazzle build.
+#   stock:    Claude Code v2.1.291
+#   patched:  Dazzle Claude Code v2.1.291 (middle dot) dcc 0.1.3
+# The title stays bold and the versions stay dim, as in stock. Only the drawn text
+# changes: Claude Code's version constant, and the name it gives MCP and language
+# servers ("Claude Code" in their clientInfo), are untouched.
+format = 1
+id = "B"
+title = "Banner label"
+issue = "DazzleML/dazzle-claude-code-patcher#1"
+
+# The banner is drawn twice in one component: a truncating form for narrow
+# terminals and a normal one. Both are a bold "Claude Code", a space, and a dim
+# "v" + version. This marker (title then the space) is in that module alone.
+# This is the classic header. The header drawn in flicker-free (fullscreen)
+# rendering lives in another module and is labelled by patch B2.
+module_marker = 'bold:!0,children:"Claude Code"})," ",'
+signature = "/*dazzle-claude-code:banner-label-v1*/"
+
+[[edit]]
+name = "banner: Dazzle title, and the patcher's version after Claude Code's"
+pattern = '(?P<el>[\w$]+)\((?P<T>[\w$]+),\{bold:!0,children:"Claude Code"\}\)," ",(?P<jsx>[\w$]+)\((?P=T),\{dimColor:!0,children:\["v",(?P<ver>[\w$]+)\]\}\)'
+# The separator is a middle dot (code 183), built in JavaScript so the spec stays ASCII.
+replace = '@@el@@(@@T@@,{bold:!0,children:"Dazzle Claude Code"})," ",@@jsx@@(@@T@@,{dimColor:!0,children:["v",@@ver@@," "+String.fromCharCode(183)+" dcc @@dcc_version@@"]})'
+expect = 2
