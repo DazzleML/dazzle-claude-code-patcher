@@ -58,6 +58,24 @@ dcc-patcher apply %USERPROFILE%\.local\bin\claude.exe
 
 **The builds folder** is the same whatever folder you run `apply` from: `private\builds\` in a checkout of this repository, otherwise `%LOCALAPPDATA%\dazzle-claude-code-patcher\builds\` (`~/.local/share/dazzle-claude-code-patcher/builds/` on Linux and macOS); set `DCC_BUILDS_DIR` to choose another. Each build is named after both versions, so older builds stay for rollback, and `claude-dcc.exe` points at the newest. Rebuilding the same versions says `already built`. If `claude-dcc.exe` is running, `apply` keeps the new versioned build, says the current name still points at the old one, and exits 1. `-o <path>` writes exactly that file instead, with no `claude-dcc.exe` link. `apply` prints absolute paths, and refuses to write inside Claude Code's own config folder (`~/.claude`, or `CLAUDE_CONFIG_DIR`).
 
+### Make the patched build just `claude`
+
+```bash
+dcc-patcher install-shim        # writes claude, claude-stock (and .cmd versions on Windows) to <builds>\bin
+```
+
+Put that folder **ahead of** `%USERPROFILE%\.local\bin` on `PATH`, and keep `.local\bin` on `PATH` as well: Claude Code's updater checks that it's there. From then on, `claude` runs the current patched build. When the official `claude.exe` has updated, the next start rebuilds and switches to the new build. If a patch needs attention after an update, it runs stock instead, with one line naming the patch. `claude-stock` always runs the official build.
+
+| Command | What `claude` runs from the next start |
+|---|---|
+| `dcc-patcher use patched` | the newest good build, rebuilt after each update (the default) |
+| `dcc-patcher use stock` | the official `claude.exe` |
+| `dcc-patcher use <build file name>` | that build, pinned (no rebuilds) |
+| `dcc-patcher rollback` | the build before the current one, pinned |
+| `dcc-patcher use` | (shows the current state) |
+
+`DCC_MODE=stock` or `DCC_MODE=patched` overrides the choice for one shell. With `CLAUDE_CONFIG_DIR` set (a test config), the launcher never rebuilds or changes the state: if a rebuild would be needed, it runs stock and says so. The official install and its updater are only ever read. The updater writes to its own fixed path in `.local\bin`, so it never touches the shims or the builds.
+
 After Claude Code updates, run `check` again. Every edit `APPLIES`: run `apply` again. An edit fails: nothing is written, and `check --baseline <builds>\claude-dcc.exe.dcc-lock.json` shows what changed at its site. Other commands: `inspect <exe>` (version, modules, where a string lives) and `validate [patch.toml ...]` (is a patch spec well formed). Exit codes: 0 fine, 1 a patch needs a human, 2 a usage error or an unsupported file.
 
 The patched copy has its code signature removed (any edit invalidates it), so antivirus or SmartScreen may question it the first time. The official `claude.exe` and its updater are never touched.

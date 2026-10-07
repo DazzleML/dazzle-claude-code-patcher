@@ -1,0 +1,4 @@
+#!/bin/sh
+# Written by dcc-patcher install-shim: runs @@what@@. Regenerate it rather than edit it.
+export DCC_MODE=@@mode@@
+exec "@@python@@" -P -m dcc_patcher.launch "$@"

@@ -17,4 +17,14 @@ Entries expire when the file's hash changes (`git hash-object <file>`; first 12 
 - `if patch.signature in text:` -> `if text.startswith(patch.signature):` -- **don't-care**: with one patch per module the signature is always first; revisit when two patches share a module. Mode 1, 2026-10-05.
 - `if e.debug_only and not debug:` -> `if e.debug_only and debug:` -- **don't-care**: no shipped spec has debug-only edits yet. Mode 1, 2026-10-05.
 
+## dcc_patcher/launch.py @ 6a79d10faec5 (uncommitted, #5, 2026-10-07)
+
+- `not p.name.endswith(('.json', '.md', '.tmp'))` -> `('.json', '.md')` -- **equivalent**: every temporary file this tool writes starts with `.dcc-`, and the glob is `claude-dcc-*`, so no `.tmp` ever reaches the filter. Mode 1, 2026-10-07.
+- `all(r.ok for r in results)` -> `any(...)` in `rebuild` -- **equivalent**: `cli.build` returns a build only when every patch is ok, so `built` being set already implies `all`. Mode 1, 2026-10-07.
+- `'\n'.join(...) or None` -> without `or None` -- **don't-care**: the only reader, `main`, tests the note's truthiness, so `''` and `None` behave alike. Mode 1, 2026-10-07.
+
+## dcc_patcher/cli.py @ 8e6c4fcaf06a (uncommitted, #5, 2026-10-07)
+
+- `name.replace('claude', stem, 1)` -> without the count -- **equivalent**: each shim name (`claude`, `claude.cmd`) contains `claude` once. Mode 1, 2026-10-07.
+
 The `__init__.py` heading's hash is filled in when the file is first committed.

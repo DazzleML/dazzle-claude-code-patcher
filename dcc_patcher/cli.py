@@ -91,39 +91,58 @@ def cmd_apply(args) -> int:
     data, exe = _open(args.file)
     if data is None:
         return exe
+    code, _, _ = _build(args.file, data, exe, patches, args.output, args.debug)
+    return code
+
+
+def build(file) -> tuple[int, str | None, list]:
+    """The launcher's rebuild: `apply <file>` into the builds folder with the
+    bundled patches. Returns (exit code, the versioned build or None, results)."""
+    try:
+        patches = [spec.load(p) for p in _spec_paths(None)]
+    except (SpecError, OSError) as e:
+        print(f'dcc-patcher: {e}', file=sys.stderr)
+        return 2, None, []
+    data, exe = _open(file)
+    if data is None:
+        return exe, None, []
+    return _build(file, data, exe, patches, None, False)
+
+
+def _build(file, data, exe, patches, output, debug) -> tuple[int, str | None, list]:
     version = _version_of(data)
-    output = args.output
+    given = output
     if not output:
         tag = version if version != 'unknown' else f'unknown-{lock._sha(data)[:12]}'
-        output = str(builds.builds_dir() / builds.build_name(tag, Path(args.file).suffix))
+        output = str(builds.builds_dir() / builds.build_name(tag, Path(file).suffix))
         if _refuse_output(output):
-            return 2
-    image, results = engine.apply(exe, patches, debug=args.debug)
+            return 2, None, []
+    image, results = engine.apply(exe, patches, debug=debug)
     _report(results)
     if not all(r.ok for r in results):
         print('dcc-patcher: a patch needs a human; nothing written', file=sys.stderr)
-        return 1
+        return 1, None, results
     if image is None:
         print('nothing to apply; nothing written')
-        return 0
+        return 0, None, results
     output = os.path.abspath(output)
     lock_path = f'{output}.dcc-lock.json'
-    if not args.output and _same_build(lock_path, image):
+    if not given and _same_build(lock_path, image):
         print(f'already built: {output}')
     else:
         _write_atomically(output, image)
         _write_atomically(lock_path, lock.dumps(lock.build(data, image, version, exe, results)).encode())
         print(f'wrote {output}\n  and {lock_path}')
-    if args.output:
-        return 0
+    if given:
+        return 0, output, results
     try:
         link, how = builds.point_current(Path(output))
     except PermissionError:
         print(f'dcc-patcher: the current build is in use, so it still points at the old one; '
               f'the new build is at {output}', file=sys.stderr)
-        return 1
+        return 1, output, results
     print(f'{link} -> {Path(output).name} ({how})')
-    return 0
+    return 0, output, results
 
 
 def _same_build(lock_path, image: bytes) -> bool:
@@ -215,6 +234,77 @@ def _write_atomically(path, data: bytes):
         raise
 
 
+def cmd_use(args) -> int:
+    from . import launch
+    st = launch.load_state()
+    if not args.what:
+        print(f'mode:     {st["mode"]}')
+        print(f'current:  {st.get("current") or "(none yet)"}')
+        print(f'official: {st["official"]}')
+        print(f'builds:   {builds.builds_dir()}')
+        return 0
+    what = args.what
+    if what not in launch.MODES:
+        what = Path(what).name
+        if what not in launch.kept_builds():
+            print(f'dcc-patcher: no build {what} in {builds.builds_dir()} '
+                  f'(stock, patched, or one of: {", ".join(launch.kept_builds()) or "none"})', file=sys.stderr)
+            return 2
+    st['mode'] = what
+    launch.save_state(st)
+    print(f'claude runs {what} from the next start')
+    return 0
+
+
+def cmd_rollback(args) -> int:
+    from . import launch
+    st = launch.load_state()
+    kept = launch.kept_builds()
+    now = st['mode'] if st['mode'] not in launch.MODES else st.get('current')
+    earlier = kept[:kept.index(now)] if now in kept else []
+    if not earlier:
+        print(f'dcc-patcher: no build older than {now or "the current one"} in {builds.builds_dir()}', file=sys.stderr)
+        return 1
+    st['mode'] = earlier[-1]
+    launch.save_state(st)
+    print(f'claude runs {earlier[-1]} from the next start (pinned; `dcc-patcher use patched` to follow updates again)')
+    return 0
+
+
+SHIMS = Path(__file__).resolve().parent / 'shims'
+
+
+def cmd_install_shim(args) -> int:
+    folder = Path(args.dir).resolve() if args.dir else builds.builds_dir() / 'bin'
+    official_bin = (Path(os.path.expanduser('~')) / '.local' / 'bin').resolve()
+    if _refuse_output(folder):
+        return 2
+    if folder == official_bin or official_bin in folder.parents:
+        print(f'dcc-patcher: refusing to write into the official install\'s folder ({official_bin})', file=sys.stderr)
+        return 2
+    python = sys.executable
+    kinds = [('claude.cmd', 'claude.cmd.in'), ('claude', 'claude.sh.in')] if sys.platform == 'win32' \
+        else [('claude', 'claude.sh.in')]
+    folder.mkdir(parents=True, exist_ok=True)
+    for name, template in kinds:
+        text = (SHIMS / template).read_text(encoding='ascii')
+        posix = template.endswith('.sh.in')
+        exe = python.replace('\\', '/') if posix else python
+        for stem, what, setmode in (('claude', 'the current build (dcc-patcher use)', ''),
+                                    ('claude-stock', 'the official Claude Code', 'stock')):
+            body = (text.replace('@@python@@', exe).replace('@@what@@', what)
+                    .replace('@@mode@@', setmode))
+            if not setmode:
+                body = '\n'.join(l for l in body.split('\n') if 'DCC_MODE' not in l)
+            target = folder / name.replace('claude', stem, 1)
+            target.write_bytes(body.replace('\n', '\r\n' if not posix else '\n').encode('ascii'))
+            if posix:
+                target.chmod(0o755)
+            print(f'wrote {target}')
+    print(f'Put {folder} ahead of {official_bin} on PATH (keep {official_bin} on PATH too: the updater checks it).')
+    return 0
+
+
 def cmd_inspect(args) -> int:
     data, exe = _open(args.file)
     if data is None:
@@ -261,6 +351,15 @@ def main(argv=None):
     p.add_argument('--patch', action='append', help='a patch.toml or patch folder (repeatable; default: every bundled patch)')
     p.add_argument('--debug', action='store_true', help='also apply each patch\'s debug prelude and debug-only edits')
     p.set_defaults(func=cmd_apply)
+    p = sub.add_parser('use', help='choose what the claude shim runs: stock, patched (the newest build, '
+                       'rebuilt on update) or one build; no argument shows the state')
+    p.add_argument('what', nargs='?', help='stock | patched | a build\'s file name')
+    p.set_defaults(func=cmd_use)
+    p = sub.add_parser('rollback', help='pin the build before the current one')
+    p.set_defaults(func=cmd_rollback)
+    p = sub.add_parser('install-shim', help='write the claude and claude-stock launchers')
+    p.add_argument('--dir', help='where to write them (default: <builds folder>/bin)')
+    p.set_defaults(func=cmd_install_shim)
     args = parser.parse_args(argv)
     if not getattr(args, 'func', None):
         parser.print_help(sys.stderr)

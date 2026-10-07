@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-10-07
+
+### Added
+
+- **A launcher, so the patched build is just `claude`.** `dcc-patcher install-shim` writes `claude` and `claude-stock` (plus `.cmd` versions on Windows) into `<builds>\bin`. Put that folder ahead of `~/.local/bin` on `PATH`.
+  - `claude` runs the current patched build. When the official `claude.exe` has changed, the next start rebuilds into the builds folder and switches to the new build.
+  - If a patch needs attention after an update, or the rebuild fails, `claude` runs stock, with one line on stderr naming the patch.
+  - `claude-stock` always runs the official build. It's a generated file, not a shell alias, so it works the same in cmd, PowerShell and POSIX shells.
+  - All the logic is in one Python module (`dcc_patcher.launch`). The shims come from two templates, one `.cmd` and one POSIX `sh`.
+  - The official exe's hash is cached against its size, modification time and file id, so a start with nothing changed doesn't re-read 250 MB.
+- **`dcc-patcher use [stock | patched | <build>]`** chooses what `claude` runs from the next start; with no argument it shows the state. **`dcc-patcher rollback`** pins the build before the current one. `DCC_MODE=stock` or `DCC_MODE=patched` overrides the choice for one shell.
+- With `CLAUDE_CONFIG_DIR` set (a test config), the launcher never rebuilds or changes its state.
+- **The launcher never writes into `~/.local/bin` or `~/.claude`,** and `install-shim` refuses both. Claude Code's updater writes only to its own fixed path in `~/.local/bin` and never searches `PATH`, so it doesn't touch the shims.
+
 ## [0.1.5] - 2026-10-07
 
 ### Added
@@ -87,7 +101,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.2...v0.1.3

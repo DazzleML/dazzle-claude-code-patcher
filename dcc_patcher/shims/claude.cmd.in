@@ -1,0 +1,6 @@
+@echo off
+rem Written by dcc-patcher install-shim: runs @@what@@. Regenerate it rather than edit it.
+setlocal
+set DCC_MODE=@@mode@@
+"@@python@@" -P -m dcc_patcher.launch %*
+exit /b %ERRORLEVEL%

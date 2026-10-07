@@ -1,0 +1,162 @@
+{
+  "harness": {
+    "name": "mutation_sweep.py",
+    "version": "0.2.0"
+  },
+  "environment": {
+    "python": "3.12.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "root": ".",
+    "test_command": [
+      "python",
+      "-P",
+      "-m",
+      "pytest",
+      "tests/test_launcher.py",
+      "tests/test_cli.py",
+      "-q",
+      "-p",
+      "no:cacheprovider"
+    ],
+    "timestamp": "2026-10-07T02:55:15-04:00"
+  },
+  "results": [
+    {
+      "id": "r1",
+      "file": "dcc_patcher/launch.py",
+      "note": "inverted DCC_MODE membership check",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "ytest-12186/test_dcc_mode_overrides_for_on0/home'))\nlaunched = [('C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12186\\\\test_dcc_mode_overrides_for_on0\\\\builds\\\\claude-dcc-2.1.999+dcc0.1.5.exe', [])]\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000203A7041340>\ncapsys = <_pytest.capture.CaptureFixture object at 0x00000203A7042840>\n\n    def test_dcc_mode_overrides_for_one_shell_and_a_wrong_word_is_named(world, launched, monkeypatch, capsys):\n        official, builds_dir, _ = world\n        monkeypatch.setenv('DCC_MODE', 'stock')\n        start()\n>       assert launched[-1][0] == str(official)\nE       AssertionError: assert 'C:\\\\Users\\\\E...+dcc0.1.5.exe' == 'C:\\\\Users\\\\E...n\\\\claude.exe'\nE         \nE         Skipping 89 identical leading characters in diff, use -v to show\nE         - s_for_on0\\home\\.local\\bin\\claude.exe\nE         + s_for_on0\\builds\\claude-dcc-2.1.999+dcc0.1.5.exe\n\ntests\\test_launcher.py:139: AssertionError\n---------------------------- Captured stderr call -----------------------------\ndcc: DCC_MODE=stock is not stock or patched; using \"patched\"\ndcc: Claude Code updated; now running claude-dcc-2.1.999+dcc0.1.5.exe\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_dcc_mode_overrides_for_one_shell_and_a_wrong_word_is_named\n1 failed, 38 passed in 0.99s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_dcc_mode_overrides_for_one_shell_and_a_wrong_word_is_named"
+      ]
+    },
+    {
+      "id": "r2",
+      "file": "dcc_patcher/launch.py",
+      "note": "inverted pinned is_file check",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "e.CaptureFixture object at 0x000001C7DD2B9F40>\n\n    def test_a_pinned_build_that_is_gone_runs_stock_and_says_so(world, launched, capsys):\n        official, builds_dir, _ = world\n        start()\n        build = launch.load_state()['current']\n        cli.main(['use', build])\n        (builds_dir / build).unlink()\n        capsys.readouterr()\n        start()\n>       assert launched[-1][0] == str(official) and 'is gone' in capsys.readouterr().err\nE       AssertionError: assert ('C:\\\\Users\\\\E...+dcc0.1.5.exe' == 'C:\\\\Users\\\\E...n\\\\claude.exe'\nE         \nE         Skipping 89 identical leading characters in diff, use -v to show\nE         - at_is_go0\\home\\.local\\bin\\claude.exe\nE         + at_is_go0\\builds\\claude-dcc-2.1.999+dcc0.1.5.exe)\n\ntests\\test_launcher.py:191: AssertionError\n---------------------------- Captured stderr call -----------------------------\ndcc: no Claude Code at C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12187\\test_a_pinned_build_that_is_go0\\builds\\claude-dcc-2.1.999+dcc0.1.5.exe\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_use_switches_what_the_next_start_runs - A...\nFAILED tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one\nFAILED tests/test_launcher.py::test_a_pinned_build_that_is_gone_runs_stock_and_says_so\n3 failed, 36 passed in 0.94s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_a_pinned_build_that_is_gone_runs_stock_and_says_so",
+        "tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one",
+        "tests/test_launcher.py::test_use_switches_what_the_next_start_runs"
+      ]
+    },
+    {
+      "id": "r3",
+      "file": "dcc_patcher/launch.py",
+      "note": "failing message branch swapped",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "date_runs_stock_with_one_line(world, launched, capsys):\n        official, _, _ = world\n        start()\n        update(official, official_bytes('2.1.1000', patchable=False))\n        capsys.readouterr()\n        assert start() == 0\n        assert launched[-1][0] == str(official)\n        err = capsys.readouterr().err\n>       assert err.count('\\n') == 1 and 'patch T needs attention' in err and 'running stock' in err\nE       assert (1 == 1 and 'patch T needs attention' in 'dcc: the rebuild needs attention after the Claude Code update; running stock (dcc-patcher check \"C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12188\\\\test_a_patch_needing_a_human_a0\\\\home\\\\.local\\\\bin\\\\claude.exe\")\\n')\nE        +  where 1 = <built-in method count of str object at 0x000001E34AA98030>('\\n')\nE        +    where <built-in method count of str object at 0x000001E34AA98030> = 'dcc: the rebuild needs attention after the Claude Code update; running stock (dcc-patcher check \"C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12188\\\\test_a_patch_needing_a_human_a0\\\\home\\\\.local\\\\bin\\\\claude.exe\")\\n'.count\n\ntests\\test_launcher.py:125: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_a_patch_needing_a_human_after_an_update_runs_stock_with_one_line\n1 failed, 38 passed in 0.74s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_a_patch_needing_a_human_after_an_update_runs_stock_with_one_line"
+      ]
+    },
+    {
+      "id": "r4",
+      "file": "dcc_patcher/cli.py",
+      "note": "rollback base: mode vs current swapped",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "e_build_at_a_time(world, launched):\n        official, builds_dir, _ = world\n        names = []\n        for i, version in enumerate(('2.1.997', '2.1.998', '2.1.999')):\n            update(official, official_bytes(version))\n            start()\n            names.append(launch.load_state()['current'])\n            os.utime(builds_dir / names[-1], ns=(i + 1, i + 1))\n>       assert cli.main(['rollback']) == 0 and launch.load_state()['mode'] == names[1]\nE       AssertionError: assert (1 == 0)\nE        +  where 1 = <function main at 0x000001B406217740>(['rollback'])\nE        +    where <function main at 0x000001B406217740> = cli.main\n\ntests\\test_launcher.py:179: AssertionError\n---------------------------- Captured stderr call -----------------------------\ndcc: Claude Code updated; now running claude-dcc-2.1.997+dcc0.1.5.exe\ndcc: Claude Code updated; now running claude-dcc-2.1.998+dcc0.1.5.exe\ndcc: Claude Code updated; now running claude-dcc-2.1.999+dcc0.1.5.exe\ndcc-patcher: no build older than patched in C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12189\\test_rollback_steps_back_one_b0\\builds\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one\nFAILED tests/test_launcher.py::test_rollback_steps_back_one_build_at_a_time\n2 failed, 37 passed in 0.90s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one",
+        "tests/test_launcher.py::test_rollback_steps_back_one_build_at_a_time"
+      ]
+    },
+    {
+      "id": "r5",
+      "file": "dcc_patcher/cli.py",
+      "note": "dropped Path(what).name normalisation",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "        assert launched[-1][0] == str(builds_dir / build)\n>       assert cli.main(['use', str(builds_dir / build)]) == 0      # a full path names the same build\nE       AssertionError: assert 2 == 0\nE        +  where 2 = <function main at 0x000002611E4077E0>(['use', 'C:\\\\Users\\\\<user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-<user>\\\\pytest-12190\\\\test_use_switches_what_the_nex0\\\\builds\\\\claude-dcc-2.1.999+dcc0.1.5.exe'])\nE        +    where <function main at 0x000002611E4077E0> = cli.main\n\ntests\\test_launcher.py:153: AssertionError\n---------------------------- Captured stdout call -----------------------------\nclaude runs stock from the next start\nclaude runs claude-dcc-2.1.999+dcc0.1.5.exe from the next start\n---------------------------- Captured stderr call -----------------------------\ndcc: Claude Code updated; now running claude-dcc-2.1.999+dcc0.1.5.exe\ndcc-patcher: no build C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12190\\test_use_switches_what_the_nex0\\builds\\claude-dcc-2.1.999+dcc0.1.5.exe in C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12190\\test_use_switches_what_the_nex0\\builds (stock, patched, or one of: claude-dcc-2.1.999+dcc0.1.5.exe)\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_use_switches_what_the_next_start_runs - A...\n1 failed, 38 passed in 1.03s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_use_switches_what_the_next_start_runs"
+      ]
+    },
+    {
+      "id": "r6",
+      "file": "dcc_patcher/cli.py",
+      "note": "dropped replace count",
+      "verdict": "survived",
+      "restore_ok": true,
+      "output_tail": ""
+    },
+    {
+      "id": "r7",
+      "file": "dcc_patcher/cli.py",
+      "note": "inverted DCC_MODE line filtering",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "    +    where read_bytes = (WindowsPath('C:/Users/<user>/AppData/Local/Temp/pytest-of-<user>/pytest-12192/test_install_shim_writes_four_0/bin') / 'claude-stock.cmd').read_bytes\n\ntests\\test_launcher.py:238: AssertionError\n---------------------------- Captured stdout call -----------------------------\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\bin\\claude.cmd\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\bin\\claude-stock.cmd\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\bin\\claude\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\bin\\claude-stock\nPut C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\bin ahead of C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\home\\.local\\bin on PATH (keep C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12192\\test_install_shim_writes_four_0\\home\\.local\\bin on PATH too: the updater checks it).\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_install_shim_writes_four_launchers_from_two_templates\n1 failed, 38 passed in 0.92s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_install_shim_writes_four_launchers_from_two_templates"
+      ]
+    },
+    {
+      "id": "r8",
+      "file": "dcc_patcher/cli.py",
+      "note": "swapped CRLF selection and chmod condition",
+      "verdict": "killed",
+      "restore_ok": true,
+      "output_tail": "nstall-shim: runs the current build (dcc-patcher use). Regenerate it rather than edit it.\\nsetlocal\\n\"C:\\\\Python312\\\\python.exe\" -m dcc_patcher.launch %*\\nexit /b %ERRORLEVEL%\\n')\n\ntests\\test_launcher.py:232: AssertionError\n---------------------------- Captured stdout call -----------------------------\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\bin\\claude.cmd\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\bin\\claude-stock.cmd\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\bin\\claude\nwrote C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\bin\\claude-stock\nPut C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\bin ahead of C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\home\\.local\\bin on PATH (keep C:\\Users\\<user>\\AppData\\Local\\Temp\\pytest-of-<user>\\pytest-12193\\test_install_shim_writes_four_0\\home\\.local\\bin on PATH too: the updater checks it).\n=========================== short test summary info ===========================\nFAILED tests/test_launcher.py::test_install_shim_writes_four_launchers_from_two_templates\n1 failed, 38 passed in 0.93s\nC:\\Python312\\Lib\\site-packages\\pytest_asyncio\\plugin.py:211: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+      "killed_by": [
+        "tests/test_launcher.py::test_install_shim_writes_four_launchers_from_two_templates"
+      ]
+    }
+  ],
+  "summary": {
+    "killed": 7,
+    "survived": 1
+  },
+  "anomalies": [],
+  "overlap": {
+    "kills": {
+      "tests/test_launcher.py::test_a_patch_needing_a_human_after_an_update_runs_stock_with_one_line": [
+        "r3"
+      ],
+      "tests/test_launcher.py::test_a_pinned_build_that_is_gone_runs_stock_and_says_so": [
+        "r2"
+      ],
+      "tests/test_launcher.py::test_dcc_mode_overrides_for_one_shell_and_a_wrong_word_is_named": [
+        "r1"
+      ],
+      "tests/test_launcher.py::test_install_shim_writes_four_launchers_from_two_templates": [
+        "r7",
+        "r8"
+      ],
+      "tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one": [
+        "r2",
+        "r4"
+      ],
+      "tests/test_launcher.py::test_rollback_steps_back_one_build_at_a_time": [
+        "r4"
+      ],
+      "tests/test_launcher.py::test_use_switches_what_the_next_start_runs": [
+        "r2",
+        "r5"
+      ]
+    },
+    "identical": [],
+    "contained": [
+      [
+        "tests/test_launcher.py::test_a_pinned_build_that_is_gone_runs_stock_and_says_so",
+        "tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one"
+      ],
+      [
+        "tests/test_launcher.py::test_a_pinned_build_that_is_gone_runs_stock_and_says_so",
+        "tests/test_launcher.py::test_use_switches_what_the_next_start_runs"
+      ],
+      [
+        "tests/test_launcher.py::test_rollback_steps_back_one_build_at_a_time",
+        "tests/test_launcher.py::test_rollback_pins_the_build_before_the_current_one"
+      ]
+    ],
+    "killed_without_names": []
+  }
+}

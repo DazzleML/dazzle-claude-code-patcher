@@ -1,0 +1,19 @@
+{
+  "test_command": ["python", "-P", "-m", "pytest", "tests/test_launcher.py", "tests/test_cli.py", "-q", "-p", "no:cacheprovider"],
+  "mutations": [
+    {"id": "m1", "file": "dcc_patcher/launch.py", "original": "if st.get('official_stat') == stamp and st.get('official_sha256'):", "mutated": "if st.get('official_stat') == stamp or st.get('official_sha256'):", "note": "and->or: cache hit without matching stat"},
+    {"id": "m2", "file": "dcc_patcher/launch.py", "original": "stamp = [s.st_size, s.st_mtime_ns, s.st_ino]", "mutated": "stamp = [s.st_size, s.st_mtime_ns]", "note": "drop file id from stamp"},
+    {"id": "m3", "file": "dcc_patcher/launch.py", "original": "return lock.get('input_sha256')", "mutated": "return lock.get('output_sha256')", "note": "wrong lock key"},
+    {"id": "m4", "file": "dcc_patcher/launch.py", "original": "key=lambda p: p.stat().st_mtime_ns)]", "mutated": "key=lambda p: p.stat().st_mtime_ns, reverse=True)]", "note": "order newest first"},
+    {"id": "m5b", "file": "dcc_patcher/launch.py", "original": "not p.name.endswith(('.json', '.md', '.tmp'))]", "mutated": "not p.name.endswith(('.json', '.md'))]", "note": ".tmp files counted as builds"},
+    {"id": "m6", "file": "dcc_patcher/launch.py", "original": "    if mode != 'patched':                                   # a pinned build", "mutated": "    if mode == 'patched':                                   # a pinned build", "note": "inverted pinned-build branch"},
+    {"id": "m7", "file": "dcc_patcher/launch.py", "original": "writable = not env.get('CLAUDE_CONFIG_DIR')", "mutated": "writable = bool(env.get('CLAUDE_CONFIG_DIR'))", "note": "inverted writable guard"},
+    {"id": "m8", "file": "dcc_patcher/launch.py", "original": "if current and (builds.builds_dir() / current).is_file() and built_from(current) == sha:", "mutated": "if current and (builds.builds_dir() / current).is_file() and built_from(current) != sha:", "note": "sha comparison flipped"},
+    {"id": "m9", "file": "dcc_patcher/launch.py", "original": "if built and results and all(r.ok for r in results):", "mutated": "if built and results and any(r.ok for r in results):", "note": "all->any"},
+    {"id": "m10", "file": "dcc_patcher/launch.py", "original": "    if not os.path.isfile(exe):\n        print(f'dcc: no Claude Code at {exe}', file=sys.stderr)\n        return 127", "mutated": "    if not os.path.isfile(exe):\n        print(f'dcc: no Claude Code at {exe}', file=sys.stderr)\n        return 1", "note": "wrong exit code"},
+    {"id": "m11", "file": "dcc_patcher/launch.py", "original": "return '\\n'.join(n for n in notes if n) or None", "mutated": "return '\\n'.join(n for n in notes if n)", "note": "empty string instead of None"},
+    {"id": "m12", "file": "dcc_patcher/cli.py", "original": "    earlier = kept[:kept.index(now)] if now in kept else []", "mutated": "    earlier = kept[:kept.index(now) + 1] if now in kept else []", "note": "off-by-one includes current build"},
+    {"id": "m13", "file": "dcc_patcher/cli.py", "original": "    st['mode'] = earlier[-1]\n    launch.save_state(st)", "mutated": "    st['mode'] = earlier[0]\n    launch.save_state(st)", "note": "wrong index: oldest instead of previous"},
+    {"id": "m14", "file": "dcc_patcher/cli.py", "original": "    if folder == official_bin or official_bin in folder.parents:", "mutated": "    if folder == official_bin:", "note": "dropped subfolder guard"}
+  ]
+}

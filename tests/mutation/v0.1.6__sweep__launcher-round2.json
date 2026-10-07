@@ -1,0 +1,13 @@
+{
+  "test_command": ["python", "-P", "-m", "pytest", "tests/test_launcher.py", "tests/test_cli.py", "-q", "-p", "no:cacheprovider"],
+  "mutations": [
+    {"id": "r1", "file": "dcc_patcher/launch.py", "original": "        if env['DCC_MODE'] in MODES:\n            mode = env['DCC_MODE']", "mutated": "        if env['DCC_MODE'] not in MODES:\n            mode = env['DCC_MODE']", "note": "inverted DCC_MODE membership check"},
+    {"id": "r2", "file": "dcc_patcher/launch.py", "original": "        if pinned.is_file():\n            return str(pinned), note", "mutated": "        if not pinned.is_file():\n            return str(pinned), note", "note": "inverted pinned is_file check"},
+    {"id": "r3", "file": "dcc_patcher/launch.py", "original": "which = f'patch {\", \".join(failing)} needs' if failing else 'the rebuild needs'", "mutated": "which = f'patch {\", \".join(failing)} needs' if not failing else 'the rebuild needs'", "note": "failing message branch swapped"},
+    {"id": "r4", "file": "dcc_patcher/cli.py", "original": "    now = st['mode'] if st['mode'] not in launch.MODES else st.get('current')", "mutated": "    now = st.get('current') if st['mode'] not in launch.MODES else st['mode']", "note": "rollback base: mode vs current swapped"},
+    {"id": "r5", "file": "dcc_patcher/cli.py", "original": "        what = Path(what).name\n        if what not in launch.kept_builds():", "mutated": "        if what not in launch.kept_builds():", "note": "dropped Path(what).name normalisation"},
+    {"id": "r6", "file": "dcc_patcher/cli.py", "original": "            target = folder / name.replace('claude', stem, 1)", "mutated": "            target = folder / name.replace('claude', stem)", "note": "dropped replace count"},
+    {"id": "r7", "file": "dcc_patcher/cli.py", "original": "            if not setmode:\n                body = '\\n'.join(l for l in body.split('\\n') if 'DCC_MODE' not in l)", "mutated": "            if setmode:\n                body = '\\n'.join(l for l in body.split('\\n') if 'DCC_MODE' not in l)", "note": "inverted DCC_MODE line filtering"},
+    {"id": "r8", "file": "dcc_patcher/cli.py", "original": "            target.write_bytes(body.replace('\\n', '\\r\\n' if not posix else '\\n').encode('ascii'))\n            if posix:\n                target.chmod(0o755)", "mutated": "            target.write_bytes(body.replace('\\n', '\\r\\n' if posix else '\\n').encode('ascii'))\n            if not posix:\n                target.chmod(0o755)", "note": "swapped CRLF selection and chmod condition"}
+  ]
+}
