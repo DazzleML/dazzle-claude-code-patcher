@@ -1,0 +1,35 @@
+# History across session files: a conversation continued into a new session file
+# scrolls back into the file it came from.
+# Derived from ojura/claude-patches (MIT), Patch J: "Resolve cross-file
+# logicalParentUuid at session load". Adapted for the native CLI, with one change:
+# a missing or unreadable sibling stops the search quietly instead of failing.
+# Needs patch H: H's walker is what follows a compaction boundary's
+# logicalParentUuid; this patch puts the message it points at into the map.
+format = 1
+id = "J"
+title = "History across session files"
+issue = "DazzleML/dazzle-claude-code-patcher#6"
+module_marker = "tengu_chain_parent_cycle"
+signature = "/*dazzle-claude-code:cross-file-v1*/"
+
+# __dzSiblings(file, add): before the session file's own lines are read, find every
+# logicalParentUuid the file names but does not contain; look for it in the other
+# .jsonl files of the same folder (newest first); feed that file's lines up to the
+# one holding it to the loader's own entry handler (add); repeat on what was added
+# (a grandparent session), at most 10 times. Any error ends the search: the session
+# then loads exactly as it would without this patch.
+prelude = '''globalThis.__dzSiblings=(f,add)=>{try{let fs=import.meta.require("fs"),P=import.meta.require("path"),cur;try{cur=fs.readFileSync(f,"utf8")}catch{return}let texts=[cur],got=new Set,out=[],cache=new Map,files,dir=P.dirname(f),me=P.basename(f),key=(u)=>`"uuid":"${u}"`,need=(t)=>{let s=new Set;for(let m of t.matchAll(/"logicalParentUuid":"([^"]+)"/g))if(!texts.some((x)=>x.includes(key(m[1]))))s.add(m[1]);return s},want=need(cur);for(let pass=0;pass<10&&want.size;pass++){if(!files)files=fs.readdirSync(dir).filter((n)=>n.endsWith(".jsonl")&&n!==me).map((n)=>[n,fs.statSync(P.join(dir,n)).mtimeMs]).sort((a,b)=>b[1]-a[1]).map((x)=>x[0]);let ends=new Map;for(let u of want)for(let n of files){let t=cache.get(n);if(t===void 0){try{t=fs.readFileSync(P.join(dir,n),"utf8")}catch{t=""}cache.set(n,t)}let i=t.indexOf(key(u));if(i<0)continue;let e=t.indexOf("\n",i);if(e<0)e=t.length;if(e>(ends.get(n)??-1))ends.set(n,e);break}if(!ends.size)break;let batch=[],slices=[];for(let[n,e]of ends){let s=cache.get(n).slice(0,e);slices.push(s);for(let line of s.split("\n")){if(!line.trim())continue;let o;try{o=JSON.parse(line)}catch{continue}if(o&&typeof o.uuid==="string"&&!got.has(o.uuid)&&!cur.includes(key(o.uuid))){got.add(o.uuid);batch.push(o)}}}out=[...batch,...out];texts.push(...slices);want=new Set;for(let s of slices)for(let u of need(s))want.add(u)}for(let o of out)add(o);globalThis.__dzLog?.(`siblings: ${out.length} entries from ${cache.size} files read`)}catch(x){globalThis.__dzLog?.(`siblings: stopped (${x})`)}};'''
+
+# Fixed upstream if the session loader itself looks in sibling files: no saved
+# build from 2.1.278 to 2.1.292 reads another .jsonl while loading one. An
+# inference, not a known fix.
+[upstream_fixed]
+near = "loadTranscriptFile"
+window = 3000
+pattern = 'readdir[^;]{0,200}\.jsonl'
+
+[[edit]]
+name = "loader: add the sibling files' messages before this file's own"
+# The loader that opens the file by path (2.1.290 had a separate four-argument one).
+pattern = 'async function (?P<fn>[\w$]+)\((?P<f>[\w$]+),(?P<o>[\w$]+)(?P<more>(?:,[\w$]+)*)\)\{let (?P<r>[\w$]+)=(?P<mk>[\w$]+)\((?P=o)\?\.keepAllLeaves\?\?!1\),\{processEntry:(?P<add>[\w$]+),(?P<rest>[^}]*)\}=(?P=r);(?P=r)\.precede\((?P=o)\?\.precedingEntries\?\?\[\]\);'
+replace = 'async function @@fn@@(@@f@@,@@o@@@@more@@){let @@r@@=@@mk@@(@@o@@?.keepAllLeaves??!1),{processEntry:@@add@@,@@rest@@}=@@r@@;@@r@@.precede(@@o@@?.precedingEntries??[]);globalThis.__dzSiblings?.(@@f@@,@@add@@);'

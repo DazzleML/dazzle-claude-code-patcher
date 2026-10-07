@@ -62,3 +62,4 @@ def test_every_history_edit_applies_to_the_real_build(capsys):                  
     assert 'H  applies' in out and 'MISSING' not in out and 'AMBIGUOUS' not in out
     assert out.count('V [module') == 2 and 'needs-human' not in out
     assert '  B  applies' in out and '  B2  applies' in out           # both banner headers
+    assert '  J  applies' in out                                      # cross-file history

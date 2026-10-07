@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-10-07
+
+### Added
+
+- **`patches/J-history-across-files/`: history across session files.** A conversation that continued into a new session file, after running out of context or after a fork, now scrolls back into the file it came from, and on to the first message of the original conversation.
+  - When a session file points at a message it doesn't contain, the loader finds it in another `.jsonl` file of the same folder and loads that file's lines up to the message. It repeats for a grandparent session.
+  - A missing or damaged earlier file stops the search quietly, and the session loads as before.
+  - Needs the history patch (H).
+  - `check` passes on every saved build from 2.1.278 through 2.1.292. Not yet live-tested.
+  - Derived from ojura/claude-patches' Patch J (MIT), with credit in the patch and its README.
+
 ## [0.1.6] - 2026-10-07
 
 ### Added
@@ -101,7 +112,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.3...v0.1.4

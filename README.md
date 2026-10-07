@@ -21,6 +21,7 @@ Some Claude Code bugs sit in code you can't configure around. For example, after
 | Patch | Fixes | Status |
 |---|---|---|
 | [History past compaction](patches/H-history-past-compaction/README.md) | After a restart or `--resume`, scroll back past compactions to the start of the session file | `check` passes on 2.1.278 to 2.1.292; live-tested on 2.1.289 to 2.1.291 |
+| [History across session files](patches/J-history-across-files/README.md) | A conversation that continued into a new session file (after running out of context, or a fork) scrolls back into the file it came from, and on to its first message. Needs the history patch. Derived from ojura/claude-patches' Patch J | `check` passes on 2.1.278 to 2.1.292; not yet live-tested |
 | [Version label](patches/V-version-label/patch.toml) | `--version` says it is a patched build and which patcher made it: `2.1.291 + dcc 0.1.3 (Dazzle Claude Code)`. Only the displayed text changes; the version Claude Code checks against is untouched | `check` passes on 2.1.278 to 2.1.292 |
 | Banner label ([classic](patches/B-banner-label/patch.toml), [flicker-free](patches/B2-banner-label-flicker-free/patch.toml)) | The header at the top of every session reads `Dazzle Claude Code v2.1.291 · dcc 0.1.3`, in both rendering modes. Only the drawn text changes | `check` passes on 2.1.278 to 2.1.292; flicker-free live-tested on 2.1.291 |
 
