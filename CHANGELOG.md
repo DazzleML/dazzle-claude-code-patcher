@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-10-07
+
+### Added
+
+- **Plugins can tell the history patch is in place.** A build with the history patch sets `DCC_PATCH_H=history-v1` in Claude Code's environment. A plugin reads it with `$.env.get("DCC_PATCH_H")` and can then scroll straight to a resumed session's earliest messages; on stock it reads nothing. The history patch's README has a section for plugin authors. Builds made before this version don't set it, so rebuild.
+
 ## [0.1.7] - 2026-10-07
 
 ### Added
@@ -112,7 +118,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...v0.1.5

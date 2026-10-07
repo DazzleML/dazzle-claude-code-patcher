@@ -13,7 +13,10 @@ signature = "/*dazzle-claude-code:history-v1*/"
 #    whose preserved tail sits after the summary);
 # 3. else the original parent of the preserved head, recorded by the prune before
 #    it relinked the head (the last compaction).
-prelude = '''globalThis.__dzCross=(h,e,g)=>{if(h?.type!=="system"||h.subtype!=="compact_boundary")return;let L=h.logicalParentUuid;if(!L)return;let M=h.compactMetadata,U=M?.preservedMessages?.uuids??[],H0=M?.preservedSegment?.headUuid??U[0],S0=g.has(L),w,how="lpu";if(!S0)w=L;else{how="preserved";for(let k=U.length-1;k>=0;k--)if(!g.has(U[k])&&e.has(U[k])){w=U[k];break}if(!w&&H0){how="head-parent";w=globalThis.__dzOrigParent?.[H0]??e.get(H0)?.parentUuid}}globalThis.__dzLog?.(`walk: boundary ${h.uuid} lpu=${L} seen=${S0} via=${how} -> ${w}`);return w};'''
+# It also sets DCC_PATCH_H in the main process's environment (#8): plugin hooks run
+# in an isolated context where globalThis is not shared, but $.env.get reads this
+# environment, so a plugin can tell that early messages are reachable rows.
+prelude = '''process.env.DCC_PATCH_H="history-v1";globalThis.__dzCross=(h,e,g)=>{if(h?.type!=="system"||h.subtype!=="compact_boundary")return;let L=h.logicalParentUuid;if(!L)return;let M=h.compactMetadata,U=M?.preservedMessages?.uuids??[],H0=M?.preservedSegment?.headUuid??U[0],S0=g.has(L),w,how="lpu";if(!S0)w=L;else{how="preserved";for(let k=U.length-1;k>=0;k--)if(!g.has(U[k])&&e.has(U[k])){w=U[k];break}if(!w&&H0){how="head-parent";w=globalThis.__dzOrigParent?.[H0]??e.get(H0)?.parentUuid}}globalThis.__dzLog?.(`walk: boundary ${h.uuid} lpu=${L} seen=${S0} via=${how} -> ${w}`);return w};'''
 
 debug_prelude = '''globalThis.__dzLog=(m)=>{try{import.meta.require("fs").appendFileSync(process.env.DZ_DEBUG_LOG||"dcc-debug.log",new Date().toISOString()+" "+m+"\n")}catch{}};globalThis.__dzLog("module loaded");'''
 

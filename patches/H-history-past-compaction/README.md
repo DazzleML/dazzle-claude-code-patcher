@@ -38,6 +38,16 @@ The helper (`__dzCross`) picks where the walk continues past a compaction row:
 
 **Recognising an upstream fix:** if the walker itself starts reading `logicalParentUuid`, the patch reports `upstream-fixed` and is not applied. That is an educated guess about how a fix would look, not a known fix; revisit it when Anthropic ships one.
 
+## For plugin authors: detecting this patch
+
+A build with this patch sets `DCC_PATCH_H=history-v1` in Claude Code's own environment when the module loads (since v0.1.8). Plugin hooks run in an isolated context that can't see the patch's JavaScript, but `$.env.get` reads that environment:
+
+```js
+const fullReach = $.env.get("DCC_PATCH_H");   // "history-v1" on a patched build; nothing on stock
+```
+
+When it's set, a resumed session's messages from before its compactions are real rows you can scroll to; when it isn't, they aren't. The variable is inherited by the processes Claude Code starts (tools, MCP servers), which is harmless. The value changes only if the patch's behaviour changes.
+
 ## Verify
 
 - `dcc-patcher check <claude.exe>`: every edit `APPLIES`.
