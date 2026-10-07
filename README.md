@@ -20,10 +20,10 @@ Some Claude Code bugs sit in code you can't configure around. For example, after
 
 | Patch | Fixes | Status |
 |---|---|---|
-| [History past compaction](patches/H-history-past-compaction/README.md) | After a restart or `--resume`, scroll back past compactions to the start of the session file | `check` passes on 2.1.278 to 2.1.292; live-tested on 2.1.289 to 2.1.291 |
-| [History across session files](patches/J-history-across-files/README.md) | A conversation that continued into a new session file (after running out of context, or a fork) scrolls back into the file it came from, and on to its first message. Needs the history patch. Derived from ojura/claude-patches' Patch J | `check` passes on 2.1.278 to 2.1.292; not yet live-tested |
-| [Version label](patches/V-version-label/patch.toml) | `--version` says it is a patched build and which patcher made it: `2.1.291 + dcc 0.1.3 (Dazzle Claude Code)`. Only the displayed text changes; the version Claude Code checks against is untouched | `check` passes on 2.1.278 to 2.1.292 |
-| Banner label ([classic](patches/B-banner-label/patch.toml), [flicker-free](patches/B2-banner-label-flicker-free/patch.toml)) | The header at the top of every session reads `Dazzle Claude Code v2.1.291 · dcc 0.1.3`, in both rendering modes. Only the drawn text changes | `check` passes on 2.1.278 to 2.1.292; flicker-free live-tested on 2.1.291 |
+| [History past compaction](dcc_patcher/patches/H-history-past-compaction/README.md) | After a restart or `--resume`, scroll back past compactions to the start of the session file | `check` passes on 2.1.278 to 2.1.292; live-tested on 2.1.289 to 2.1.291 |
+| [History across session files](dcc_patcher/patches/J-history-across-files/README.md) | A conversation that continued into a new session file (after running out of context, or a fork) scrolls back into the file it came from, and on to its first message. Needs the history patch. Derived from ojura/claude-patches' Patch J | `check` passes on 2.1.278 to 2.1.292; not yet live-tested |
+| [Version label](dcc_patcher/patches/V-version-label/patch.toml) | `--version` says it is a patched build and which patcher made it: `2.1.291 + dcc 0.1.3 (Dazzle Claude Code)`. Only the displayed text changes; the version Claude Code checks against is untouched | `check` passes on 2.1.278 to 2.1.292 |
+| Banner label ([classic](dcc_patcher/patches/B-banner-label/patch.toml), [flicker-free](dcc_patcher/patches/B2-banner-label-flicker-free/patch.toml)) | The header at the top of every session reads `Dazzle Claude Code v2.1.291 · dcc 0.1.3`, in both rendering modes. Only the drawn text changes | `check` passes on 2.1.278 to 2.1.292; flicker-free live-tested on 2.1.291 |
 
 > [!CAUTION]
 > **This project ships the tool and patch definitions only *NEVER* patched binaries.** You patch your own copy of Claude Code, locally.  
@@ -32,7 +32,9 @@ Some Claude Code bugs sit in code you can't configure around. For example, after
 
 ## Installation
 
-Not yet published. From source, with Python 3.11 or newer:
+Not yet on PyPI. It needs Python 3.11 or newer, and nothing else.
+
+**From source**, editable, for working on it. Builds go to the checkout's `private\builds\`:
 
 ```bash
 git clone https://github.com/DazzleML/dazzle-claude-code-patcher.git
@@ -40,6 +42,15 @@ cd dazzle-claude-code-patcher
 pip install -e ".[dev]"
 dcc-patcher --version
 ```
+
+**As a package**, from a checkout or a downloaded wheel. The bundled patches come with it, and builds go to `%LOCALAPPDATA%\dazzle-claude-code-patcher\builds\` (`~/.local/share/...` on Linux and macOS):
+
+```bash
+pip install .                    # or: pip install dazzle_claude_code_patcher-<version>-py3-none-any.whl
+dcc-patcher validate             # lists every bundled patch
+```
+
+If a command ever says `no patch specs found`, the install is missing its patches: reinstall, or point `--patch` at a patch folder.
 
 ## Usage
 

@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SPEC = ROOT / 'patches' / 'J-history-across-files' / 'patch.toml'
+SPEC = ROOT / 'dcc_patcher' / 'patches' / 'J-history-across-files' / 'patch.toml'
 REVERTS = [
     ('slice to the line', 'let s=cache.get(n).slice(0,e);', 'let s=cache.get(n);'),
     ('fixed point', 'pass<10&&want.size', 'pass<1&&want.size'),

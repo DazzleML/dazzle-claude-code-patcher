@@ -51,7 +51,7 @@ When it's set, a resumed session's messages from before its compactions are real
 ## Verify
 
 - `dcc-patcher check <claude.exe>`: every edit `APPLIES`.
-- Then the High-Value section of [the checklist](../../tests/checklists/v0.2.0__Phase2__history-past-compaction.md):
+- Then the High-Value section of [the checklist](../../../tests/checklists/v0.2.0__Phase2__history-past-compaction.md):
   - the patched copy starts;
   - a resumed copy of a compacted session scrolls to its first prompt;
   - the request size matches stock within 0.1%.

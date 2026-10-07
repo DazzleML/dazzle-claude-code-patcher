@@ -53,6 +53,11 @@ version = {attr = "dcc_patcher._version.PIP_VERSION"}
 where = ["."]
 include = ["dcc_patcher", "dcc_patcher.*"]
 
+# The bundled patch specs and the launcher's shim templates are data, not modules:
+# without this a wheel installs without them (#4).
+[tool.setuptools.package-data]
+dcc_patcher = ["patches/*/*.toml", "patches/*/*.md", "shims/*.in"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # The pre-push hook runs `python -P -m pytest` (no current directory on sys.path),

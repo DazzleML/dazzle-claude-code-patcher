@@ -18,8 +18,8 @@ from dcc_patcher import engine, spec
 from dcc_patcher.containers import open_container
 
 ROOT = Path(__file__).resolve().parents[1]
-J = ROOT / 'patches' / 'J-history-across-files' / 'patch.toml'
-H = ROOT / 'patches' / 'H-history-past-compaction' / 'patch.toml'
+J = ROOT / 'dcc_patcher' / 'patches' / 'J-history-across-files' / 'patch.toml'
+H = ROOT / 'dcc_patcher' / 'patches' / 'H-history-past-compaction' / 'patch.toml'
 REAL = os.path.expanduser('~/.local/bin/claude.exe')
 NODE = shutil.which('node')
 needs_node = pytest.mark.skipif(NODE is None, reason='node is not installed')
@@ -99,6 +99,6 @@ def test_history_and_cross_file_patches_apply_together_to_the_real_build():
 
 
 def test_every_file_that_names_ojura_credits_it():
-    named = [p for p in [*ROOT.joinpath('dcc_patcher').rglob('*'), *ROOT.joinpath('patches').rglob('*')]
+    named = [p for p in ROOT.joinpath('dcc_patcher').rglob('*')          # the patches live in the package
              if p.is_file() and p.suffix in ('.py', '.toml', '.md') and 'ojura' in p.read_text(encoding='utf-8')]
     assert named and all('Derived from ojura/claude-patches' in p.read_text(encoding='utf-8') for p in named)

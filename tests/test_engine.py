@@ -18,7 +18,7 @@ from dcc_patcher.containers import open_container
 from tests.bunfixture import make_exe
 
 ROOT = Path(__file__).resolve().parents[1]
-HISTORY = ROOT / 'patches' / 'H-history-past-compaction' / 'patch.toml'
+HISTORY = ROOT / 'dcc_patcher' / 'patches' / 'H-history-past-compaction' / 'patch.toml'
 REAL = os.path.expanduser('~/.local/bin/claude.exe')
 needs_real = pytest.mark.skipif(not os.path.exists(REAL), reason='no local Claude Code build')
 

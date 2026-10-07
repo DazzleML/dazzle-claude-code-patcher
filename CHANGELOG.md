@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-10-07
+
+### Changed
+
+- **The bundled patches ship inside the package** (`dcc_patcher/patches/`), so an installed wheel finds them. Until now they sat at the repository's root, and only a source checkout could see them. The launcher's shim templates ship as package data too.
+
+### Fixed
+
+- **`validate`, `check` and `apply` refuse to run with no patch specs** (exit 2, one line), instead of reporting a clean run that checked nothing.
+
 ## [0.1.8] - 2026-10-07
 
 ### Added
@@ -118,7 +128,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...v0.1.6

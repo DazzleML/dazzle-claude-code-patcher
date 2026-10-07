@@ -17,7 +17,7 @@ def base(**edit):
 
 
 def test_the_history_patch_loads():
-    patch = spec.load(ROOT / 'patches' / 'H-history-past-compaction' / 'patch.toml')
+    patch = spec.load(ROOT / 'dcc_patcher' / 'patches' / 'H-history-past-compaction' / 'patch.toml')
     assert patch.id == 'H' and len(patch.edits) == 6
     assert patch.edits[4].expect == 2
 

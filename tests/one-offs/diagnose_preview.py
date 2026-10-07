@@ -14,7 +14,7 @@ from dcc_patcher.containers import open_container      # noqa: E402
 
 data = open(os.path.expanduser('~/.local/bin/claude.exe'), 'rb').read()
 exe = open_container(data)
-h = spec.load(ROOT / 'patches' / 'H-history-past-compaction' / 'patch.toml')
+h = spec.load(ROOT / 'dcc_patcher' / 'patches' / 'H-history-past-compaction' / 'patch.toml')
 baseline = lock.build(data, None, '2.1.289', exe, engine.locate_all(exe, [h]))
 walker = next(e for e in baseline['patches'][0]['edits'] if e['name'].startswith('walker'))
 before = walker['sites'][0]['before']

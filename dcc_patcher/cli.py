@@ -22,7 +22,7 @@ from ._version import DISPLAY_VERSION
 from .containers import ContainerError, UnsupportedFormat, open_container
 from .spec import SpecError
 
-PATCHES_DIR = Path(__file__).resolve().parents[1] / 'patches'
+PATCHES_DIR = Path(__file__).resolve().parent / 'patches'   # package data, so a wheel carries them (#4)
 
 
 def _version_of(data: bytes) -> str:
@@ -48,14 +48,25 @@ def _open(path):
         return None, 1
 
 
+class NoSpecs(OSError):
+    """No patch spec to run: a run with none would look clean and check nothing."""
+
+
 def _spec_paths(given) -> list[Path]:
     if not given:
-        return sorted(PATCHES_DIR.glob('*/patch.toml'))
+        found = sorted(PATCHES_DIR.glob('*/patch.toml'))
+        if not found:
+            raise NoSpecs(f'no patch specs found in {PATCHES_DIR}; reinstall dcc-patcher, or pass --patch')
+        return found
     return [Path(p) / 'patch.toml' if Path(p).is_dir() else Path(p) for p in given]
 
 
 def cmd_validate(args) -> int:
-    paths = _spec_paths(args.specs)
+    try:
+        paths = _spec_paths(args.specs)
+    except NoSpecs as e:
+        print(f'dcc-patcher: {e}', file=sys.stderr)
+        return 2
     for path in paths:
         try:
             patch = spec.load(path)

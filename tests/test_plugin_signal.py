@@ -11,7 +11,7 @@ import pytest
 from dcc_patcher import engine, spec
 from dcc_patcher.containers import open_container
 
-H = Path(__file__).resolve().parents[1] / 'patches' / 'H-history-past-compaction' / 'patch.toml'
+H = Path(__file__).resolve().parents[1] / 'dcc_patcher' / 'patches' / 'H-history-past-compaction' / 'patch.toml'
 REAL = os.path.expanduser('~/.local/bin/claude.exe')
 NODE = shutil.which('node')
 SIGNAL = b'process.env.DCC_PATCH_H="history-v1"'
