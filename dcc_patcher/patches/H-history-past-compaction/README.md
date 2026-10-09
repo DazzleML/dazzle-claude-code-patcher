@@ -46,6 +46,15 @@ A build with this patch sets `DCC_PATCH_H=history-v1` in Claude Code's own envir
 const fullReach = $.env.get("DCC_PATCH_H");   // "history-v1" on a patched build; nothing on stock
 ```
 
+The launcher adds two more when it starts a patched build (since v0.2.3), read from the build's lockfile, so a plugin can see every patch at once and the version that made the build:
+
+```js
+const patches = $.env.get("DCC_PATCHES");     // "B=banner-label-v1,B2=banner-label-flicker-free-v1,H=history-v1,J=cross-file-v1,R=rows-v1,V=version-label-v1"
+const patcher = $.env.get("DCC_PATCHER");     // "0.2.3"
+```
+
+Each patch's tag is its signature's and changes only when that patch's behaviour does. `R=rows-v1` means the normal view draws a row at each compaction summary (a mark on one has somewhere to land); `J=cross-file-v1` means a continued session reaches into its earlier file. `DCC_PATCH_H` is set by the patch itself, so it is there even when the build is run directly, without the launcher; `DCC_PATCHES` and `DCC_PATCHER` are the launcher's. When the launcher starts stock (`claude-stock`, `dcc-env stock`, `dcc-patcher use stock`), it removes all three from the environment first, so a stock Claude Code started from inside a patched session's shell doesn't inherit a signal that isn't true of it.
+
 When it's set, a resumed session's messages from before its compactions are real rows you can scroll to; when it isn't, they aren't. The variable is inherited by the processes Claude Code starts (tools, MCP servers), which is harmless. The value changes only if the patch's behaviour changes.
 
 ## Verify

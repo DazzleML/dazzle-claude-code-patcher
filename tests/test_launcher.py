@@ -306,6 +306,24 @@ def test_dcc_mode_may_name_a_build_for_one_shell(world, launched, monkeypatch, c
     assert 'Claude Code updated; building' in capsys.readouterr().err   # patched follows the update
 
 
+def test_the_launcher_tells_plugins_which_patches_run_and_clears_a_stale_signal_for_stock(world, launched,
+                                                                                            monkeypatch):
+    # #8: DCC_PATCHES / DCC_PATCHER from the build's lockfile for a patched build; for stock, those
+    # and any DCC_PATCH_* inherited from a patched session's shell are removed before the start
+    official, builds_dir, _ = world
+    monkeypatch.setenv('DCC_PATCH_H', 'history-v1')           # as a shell inside a patched session has it
+    start()
+    assert launched[-1][0].startswith(str(builds_dir))
+    assert os.environ['DCC_PATCHES'] == 'T=dcc-test'           # the test spec's one patch, its signature's tag
+    assert os.environ['DCC_PATCHER'] == builds.BASE_VERSION
+    assert 'DCC_PATCH_H' not in os.environ                     # the build's own prelude sets it afresh
+    cli.main(['use', 'stock'])
+    monkeypatch.setenv('DCC_PATCH_H', 'history-v1')
+    start()
+    assert launched[-1][0] == str(official)
+    assert not any(k in os.environ for k in ('DCC_PATCHES', 'DCC_PATCHER', 'DCC_PATCH_H'))
+
+
 def test_a_build_made_by_an_older_patcher_is_rebuilt_at_the_next_start(world, launched, monkeypatch, capsys):
     # v0.2.2: a new patch (or a changed one) reaches `claude` without waiting for a Claude Code
     # update. The build's name carries the patcher version that made it; a mismatch rebuilds.

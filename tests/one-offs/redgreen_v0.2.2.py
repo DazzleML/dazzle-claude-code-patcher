@@ -25,6 +25,15 @@ MUTATIONS = [
      [('signature = "/*dazzle-claude-code:rows-v1*/"',
        'signature = "/*dazzle-claude-code:rows-v1*/"\nprelude = "globalThis.__dzRows=1;"  ' + MARK)],
      ['tests/test_spec.py::test_the_compaction_rows_patch_loads_as_one_display_edit']),
+    # v0.2.3 (#8): the launcher's signal for plugins
+    ('c: the launcher sets no DCC_PATCHES/DCC_PATCHER for a patched build (the feature)', 'dcc_patcher/launch.py',
+     [("    if info:\n        env['DCC_PATCHES'], env['DCC_PATCHER'] = info",
+       "    if False:  " + MARK + "\n        env['DCC_PATCHES'], env['DCC_PATCHER'] = info")],
+     ['tests/test_launcher.py::test_the_launcher_tells_plugins_which_patches_run_and_clears_a_stale_signal_for_stock']),
+    ('d: stock inherits a stale DCC_PATCH_H from the shell (the fix)', 'dcc_patcher/launch.py',
+     [("    for k in list(env):\n        if k in SIGNAL_VARS or k.startswith('DCC_PATCH_'):\n            del env[k]",
+       "    for k in list(env):\n        if k in SIGNAL_VARS or k.startswith('DCC_PATCH_'):\n            pass  " + MARK)],
+     ['tests/test_launcher.py::test_the_launcher_tells_plugins_which_patches_run_and_clears_a_stale_signal_for_stock']),
 ]
 
 

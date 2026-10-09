@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-10-09
+
+### Added
+
+- **Plugins can see every patch a build carries** (#8). When the launcher starts a patched build it sets `DCC_PATCHES` (the patch ids and their tags, from the build's lockfile: `B=banner-label-v1,B2=banner-label-flicker-free-v1,H=history-v1,J=cross-file-v1,R=rows-v1,V=version-label-v1`) and `DCC_PATCHER` (the version that made the build), beside the `DCC_PATCH_H` the history patch sets itself. A plugin reads them with `$.env.get`. When the launcher starts stock, it removes all three first, so a stock Claude Code started from inside a patched session's shell doesn't inherit a signal that isn't true of it.
+
 ## [0.2.2] - 2026-10-09
 
 ### Added
@@ -194,7 +200,8 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/releases/tag/v0.2.0

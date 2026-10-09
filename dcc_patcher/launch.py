@@ -90,11 +90,48 @@ def official_sha(st: dict, official: str) -> str:
 
 def built_from(name: str) -> str | None:
     """The input sha256 a build's lockfile records, or None."""
+    lock = _lock(name)
+    return lock.get('input_sha256') if lock else None
+
+
+def _lock(name: str) -> dict | None:
     try:
-        lock = json.loads((builds.builds_dir() / f'{name}.dcc-lock.json').read_text())
+        return json.loads((builds.builds_dir() / f'{name}.dcc-lock.json').read_text())
     except (OSError, ValueError):
         return None
-    return lock.get('input_sha256')
+
+
+SIGNAL_VARS = ('DCC_PATCHES', 'DCC_PATCHER')
+
+
+def patch_set(name: str) -> tuple[str, str] | None:
+    """What a build's lockfile says it carries, for plugins: ("B=banner-label-v1,H=history-v1,...",
+    the patcher version that made it). Each patch's tag is its signature's, so it changes only
+    when that patch's behaviour does."""
+    lock = _lock(name)
+    if not lock:
+        return None
+    tags = {}
+    for p in lock.get('patches', []):
+        sig = p.get('signature') or ''
+        tag = sig.strip('/*').split(':', 1)[-1] if sig else 'v?'
+        tags[p['id']] = tag
+    version = (lock.get('tool') or '').split(' ')[-1]
+    return ','.join(f'{k}={tags[k]}' for k in sorted(tags)), version
+
+
+def signal_env(exe: str, env: dict) -> None:
+    """Tell plugins what runs. For a patched build: DCC_PATCHES (the patch ids and their tags) and
+    DCC_PATCHER (the version that built it). For stock: those two, and every DCC_PATCH_* a
+    patched build's own prelude sets, are removed, so a stock Claude Code started from inside a
+    patched session's shell doesn't inherit a signal that isn't true of it."""
+    name = Path(exe).name
+    info = patch_set(name) if Path(exe).parent == builds.builds_dir() else None
+    for k in list(env):
+        if k in SIGNAL_VARS or k.startswith('DCC_PATCH_'):
+            del env[k]
+    if info:
+        env['DCC_PATCHES'], env['DCC_PATCHER'] = info
 
 
 def kept_builds() -> list[str]:
@@ -199,6 +236,7 @@ def main(argv=None) -> int:
     if not os.path.isfile(exe):
         print(f'dcc: no Claude Code at {exe}', file=sys.stderr)
         return 127
+    signal_env(exe, os.environ)
     return _exec(exe, args)
 
 
