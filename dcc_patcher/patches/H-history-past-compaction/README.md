@@ -1,6 +1,6 @@
 # Patch H: history past compaction
 
-**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.289 (Windows). The fix was live-tested on 2.1.289 as a proof of concept; a live run of this spec's own build is pending (see the checklist below).
+**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.295 (Windows). In daily use on 2.1.289 to 2.1.295: a real session file of 5,947 messages and 5 compactions resumes to its first record, and the model receives the same request as stock (token parity measured on 2.1.289 and 2.1.290).
 **Tracking:** [DazzleML/dazzle-claude-code-patcher#1](https://github.com/DazzleML/dazzle-claude-code-patcher/issues/1). Not yet reported upstream.
 
 ## Symptom

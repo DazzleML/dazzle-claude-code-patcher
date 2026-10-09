@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-09
+
+The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It carries everything from v0.1.5 to v0.1.11 (versioned builds, the launcher, `dcc-env`, `status`, PATH backups, kept originals, history across session files, the plugin signal, the bundled patches) on top of the tool and the history patch. No code changed since v0.1.11.
+
+### Changed
+
+- **The README is down to what you need to use the tool**: install, `check` and `apply`, `dcc-env` and `status`, how it works. The detail moved to `docs/launcher.md`: the builds folder and every file in it, what `install-shim` changes step by step, choosing what `claude` runs, the `.reg` backups and `restore-path`, `status`, `uninstall-shim`, and how to check or undo all of it by hand, without dcc-patcher.
+- README links are absolute, so the page renders on PyPI.
+- `ROADMAP.md`, `docs/platform-support.md`, `CONTRIBUTING.md` and the patch READMEs say where things stand (every patch applies on 2.1.278 to 2.1.295; the history patch is in daily use).
+- The source distribution carries the package, the `dcc-env` scripts, README, CHANGELOG and LICENSE, and nothing else (`MANIFEST.in`). Tests, checklists and docs stay in the repository.
+- The PyPI workflow runs when a GitHub Release is published, and can also be run by hand from the Actions tab for a given tag; a re-run skips files already on PyPI.
+
 ## [0.1.11] - 2026-10-08
 
 ### Added
@@ -162,7 +174,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/releases/tag/v0.2.0
+[0.1.11]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.10...v0.1.11
+[0.1.10]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7

@@ -1,0 +1,7 @@
+# What goes into the source distribution beyond the package itself.
+# pyproject.toml's readme and license fields, and the package data, are included
+# on their own. Tests, checklists and one-offs stay in the repository: setuptools
+# would otherwise ship tests/test_*.py without the conftest they need.
+include CHANGELOG.md
+prune tests
+prune docs
