@@ -308,12 +308,23 @@ def cmd_install_shim(args) -> int:
     if folder == official_bin or official_bin in folder.parents:
         print(f'dcc-patcher: refusing to write into the official install\'s folder ({official_bin})', file=sys.stderr)
         return 2
+    from . import install, launch
+    if args.if_needed:
+        try:
+            if install.is_set_up(folder, launch.load_state()['official']):
+                return 0
+        except (install.winpath.PathError, OSError):
+            pass
+    if sys.platform == 'win32':                 # so uninstall-shim knows whether ~/bin was ours to make
+        rec = install.load_records()
+        if 'posix_dir_created' not in rec:
+            rec['posix_dir_created'] = install.posix_dir_created(rec)
+            install.save_records(rec)
     _write_shims(folder)
     if args.no_path:
         print(f'PATH not changed (--no-path). Put {folder} ahead of {official_bin} on PATH '
               f'(keep {official_bin} on PATH too: the updater checks it).')
         return 0
-    from . import install, launch
     try:
         return install.install(folder, launch.load_state()['official'], args.yes,
                                lambda where: _write_shims(where, posix_too=False))
@@ -322,12 +333,26 @@ def cmd_install_shim(args) -> int:
         return 1
 
 
+MARKER = b'Written by dcc-patcher install-shim'
+
+
+posix_shim_dir = builds.posix_shim_dir
+
+
 def _write_shims(folder: Path, posix_too: bool = True):
     python = sys.executable
-    kinds = [('claude.cmd', 'claude.cmd.in')] + ([('claude', 'claude.sh.in')] if posix_too else []) \
-        if sys.platform == 'win32' else [('claude', 'claude.sh.in')]
-    folder.mkdir(parents=True, exist_ok=True)
-    for name, template in kinds:
+    if sys.platform == 'win32':
+        kinds = [('claude.cmd', 'claude.cmd.in', folder)] + \
+                ([('claude', 'claude.sh.in', posix_shim_dir())] if posix_too else [])
+        for old in ('claude', 'claude-stock'):           # v0.1.10 put the sh shims beside the .cmd ones
+            stale = folder / old
+            if stale.is_file() and MARKER in stale.read_bytes()[:200]:
+                stale.unlink()
+                print(f'removed {stale} (the sh shims now live in {posix_shim_dir()})')
+    else:
+        kinds = [('claude', 'claude.sh.in', folder)]
+    for name, template, where in kinds:
+        where.mkdir(parents=True, exist_ok=True)
         text = (SHIMS / template).read_text(encoding='ascii')
         posix = template.endswith('.sh.in')
         exe = python.replace('\\', '/') if posix else python
@@ -337,7 +362,10 @@ def _write_shims(folder: Path, posix_too: bool = True):
                     .replace('@@mode@@', setmode))
             if not setmode:
                 body = '\n'.join(l for l in body.split('\n') if 'DCC_MODE' not in l)
-            target = folder / name.replace('claude', stem, 1)
+            target = where / name.replace('claude', stem, 1)
+            if target.exists() and MARKER not in target.read_bytes()[:200]:
+                print(f'dcc-patcher: {target} exists and isn\'t one of ours; left it alone', file=sys.stderr)
+                continue
             target.write_bytes(body.replace('\n', '\r\n' if not posix else '\n').encode('ascii'))
             if posix:
                 target.chmod(0o755)
@@ -355,14 +383,28 @@ def cmd_uninstall_shim(args) -> int:
 
 def cmd_status(args) -> int:
     from . import install
-    return install.status()
+    return install.status(brief=args.brief)
 
 
 def cmd_shellenv(args) -> int:
     from . import install
+    if args.folder:                             # for the dcc-env scripts: '' when this shell already has it
+        folder = install.shell_folder(posix=args.shell == 'sh')
+        if folder:
+            print(folder)
+        return 0
     entry = install.load_records().get('entry') or str(builds.builds_dir() / 'bin')
     print(install.shellenv(entry, args.shell or install.detect_shell() or 'powershell'))
     return 0
+
+
+def cmd_restore_path(args) -> int:
+    from . import install
+    try:
+        return install.restore(args.backup, args.yes)
+    except (install.winpath.PathError, OSError, ValueError) as e:
+        print(f'dcc-patcher: {e}', file=sys.stderr)
+        return 1
 
 
 def cmd_inspect(args) -> int:
@@ -421,15 +463,24 @@ def main(argv=None):
     p.add_argument('--dir', help='where to write them (default: <builds folder>/bin)')
     p.add_argument('--yes', action='store_true', help='change PATH without asking (also: DCC_YES=1)')
     p.add_argument('--no-path', action='store_true', help='write the launchers only; leave PATH alone')
+    p.add_argument('--if-needed', action='store_true', help='do nothing when already set up (used by dcc-env)')
     p.set_defaults(func=cmd_install_shim)
     p = sub.add_parser('uninstall-shim', help='take the launchers off PATH (only the entries dcc-patcher added)')
     p.set_defaults(func=cmd_uninstall_shim)
     p = sub.add_parser('status', help='which claude this shell runs, and whether PATH, the launcher '
                        'and the kept originals are in order')
+    p.add_argument('--brief', action='store_true', help='only the line saying which claude this shell runs')
     p.set_defaults(func=cmd_status)
-    p = sub.add_parser('shellenv', help='print the line that puts the launchers on PATH in this shell')
+    p = sub.add_parser('shellenv', help='print the line that puts the launchers on PATH in this shell '
+                       '(or run dcc-env, which does it for you)')
     p.add_argument('shell', nargs='?', choices=('cmd', 'powershell', 'sh'), help='default: detected')
+    p.add_argument('--folder', action='store_true', help='print only the folder, and nothing when this shell has it')
     p.set_defaults(func=cmd_shellenv)
+    p = sub.add_parser('restore-path', help='put a PATH backup back (default: the newest user PATH backup), '
+                       'after showing what changes')
+    p.add_argument('backup', nargs='?', help='a .reg file from the builds folder\'s backups')
+    p.add_argument('--yes', action='store_true', help='restore without asking (also: DCC_YES=1)')
+    p.set_defaults(func=cmd_restore_path)
     p = sub.add_parser('archive', help='keep every original Claude Code beside the official one '
                        '(including the updater\'s .old copies) in the builds folder')
     p.add_argument('official', nargs='?', help='the official executable (default: the launcher\'s)')

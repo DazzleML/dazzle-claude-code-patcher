@@ -123,6 +123,7 @@ def test_a_patch_needing_a_human_after_an_update_runs_stock_with_one_line(world,
     assert launched[-1][0] == str(official)
     err = capsys.readouterr().err
     assert err.count('\n') == 1 and 'patch T needs attention' in err and 'running stock' in err
+    assert err.startswith('dcc: Claude Code updated; building')
 
 
 def test_a_rebuild_says_so_before_it_starts_and_finishes_the_same_line(world, launched, monkeypatch, capsys):
@@ -134,7 +135,7 @@ def test_a_rebuild_says_so_before_it_starts_and_finishes_the_same_line(world, la
         return None, ['T']
     monkeypatch.setattr(launch, 'rebuild', slow_rebuild)
     assert start() == 0
-    assert seen[0].startswith('dcc: Claude Code changed; building') and not seen[0].endswith('\n')
+    assert seen[0].startswith('dcc: first start; building') and not seen[0].endswith('\n')
     whole = seen[0] + capsys.readouterr().err
     assert whole.count('\n') == 1 and whole.rstrip().endswith(f'(dcc-patcher check "{world[0]}")')
 
@@ -251,19 +252,39 @@ def test_no_official_exe_is_one_line_and_exit_127(world, launched, capsys):
 
 @pytest.mark.skipif(os.name != 'nt', reason='the .cmd shim is written on Windows only')
 def test_install_shim_writes_four_launchers_from_two_templates(world, tmp_path, capsys):
+    official, _, home = world
     folder = tmp_path / 'bin'
-    assert cli.main(['install-shim', '--dir', str(folder)]) == 0
-    assert sorted(p.name for p in folder.iterdir()) == ['claude', 'claude-stock', 'claude-stock.cmd', 'claude.cmd']
-    for name in ('claude.cmd', 'claude-stock.cmd'):
-        raw = (folder / name).read_bytes()
-        assert b'\r\n' in raw and b'" -P -m dcc_patcher.launch %*' in raw   # -P: the cwd never shadows modules
+    # on Windows the sh shims go to ~/bin, never beside the .cmd ones on the Windows PATH (#9)
+    sh_folder = home / 'bin' if os.name == 'nt' else folder
+    assert cli.main(['install-shim', '--dir', str(folder), '--no-path']) == 0
+    if os.name == 'nt':
+        assert sorted(p.name for p in folder.iterdir()) == ['claude-stock.cmd', 'claude.cmd']
+        for name in ('claude.cmd', 'claude-stock.cmd'):
+            raw = (folder / name).read_bytes()
+            assert b'\r\n' in raw and b'" -P -m dcc_patcher.launch %*' in raw   # -P: the cwd never shadows modules
+        assert b'DCC_MODE=stock' in (folder / 'claude-stock.cmd').read_bytes()
+        assert b'DCC_MODE' not in (folder / 'claude.cmd').read_bytes()
     for name in ('claude', 'claude-stock'):
-        raw = (folder / name).read_bytes()
+        raw = (sh_folder / name).read_bytes()
         assert raw.startswith(b'#!/bin/sh\n') and b'\r' not in raw and b'" -P -m dcc_patcher.launch "$@"' in raw
         assert b'\\' not in raw                              # Git Bash wants forward slashes
-    for stock, plain in (('claude-stock.cmd', 'claude.cmd'), ('claude-stock', 'claude')):
-        assert b'DCC_MODE=stock' in (folder / stock).read_bytes()
-        assert b'DCC_MODE' not in (folder / plain).read_bytes()
+    assert b'DCC_MODE=stock' in (sh_folder / 'claude-stock').read_bytes()
+    assert b'DCC_MODE' not in (sh_folder / 'claude').read_bytes()
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='the Windows layout')
+def test_reinstalling_moves_the_old_sh_shims_off_the_windows_path_and_spares_files_not_ours(world, tmp_path, capsys):
+    # CONSEQUENCE: 8 -- csb's `resume` failed with WinError 193 on the sh script v0.1.10 left there
+    official, _, home = world
+    folder = tmp_path / 'bin'
+    folder.mkdir()
+    (folder / 'claude').write_bytes(b'#!/bin/sh\n# Written by dcc-patcher install-shim: runs x.\n')
+    (home / 'bin').mkdir()
+    (home / 'bin' / 'claude-stock').write_bytes(b'#!/bin/sh\n# the user\'s own script\n')
+    assert cli.main(['install-shim', '--dir', str(folder), '--no-path']) == 0
+    assert not (folder / 'claude').exists()
+    assert (home / 'bin' / 'claude-stock').read_bytes() == b'#!/bin/sh\n# the user\'s own script\n'
+    assert "isn't one of ours; left it alone" in capsys.readouterr().err
 
 
 @pytest.mark.parametrize('where', ['official', 'inside official', 'config'])

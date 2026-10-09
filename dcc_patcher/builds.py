@@ -53,6 +53,14 @@ def exe_suffix(path) -> str:
     return '.exe' if '.exe' in Path(path).name.lower() else ''
 
 
+def posix_shim_dir() -> Path:
+    """Where the sh shims go on Windows: ~/bin, which Git for Windows puts first on
+    Git Bash's PATH (/etc/profile.d/env.sh) and Windows itself never searches. An
+    extensionless script in a folder on the Windows PATH is picked by resolvers that
+    try the bare name (Python 3.12.0's shutil.which), and CreateProcess can't run it."""
+    return Path(os.path.expanduser('~')) / 'bin'
+
+
 def config_dirs() -> list[Path]:
     dirs = [Path(os.path.expanduser('~')) / '.claude']
     if os.environ.get('CLAUDE_CONFIG_DIR'):

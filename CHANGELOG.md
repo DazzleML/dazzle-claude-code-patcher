@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-10-08
+
+### Added
+
+- **`dcc-env`: one word that sets up and fixes the shell you're in.** In cmd or PowerShell type `dcc-env`, in Git Bash `. dcc-env`. It runs `install-shim` if the launcher isn't set up yet, then puts it on `PATH` in that shell, including one that was open before the install (a program can't change its shell's `PATH`, so this is a script that runs inside the shell). pip installs the three scripts beside `dcc-patcher`. In PowerShell it needs an execution policy that runs local scripts; `status` gives the alternative when it doesn't.
+- **A backup before every `PATH` change**, as a `.reg` file holding only `Path`, in the builds folder's `backups\`, named `<date>__<time>__path-<user|system>__before-<command>__<current build>.reg`. `reg import` restores it without dcc-patcher.
+- **`dcc-patcher restore-path [file]`** puts the newest (or the named) backup back, after showing which entries come back and which go, and saves the current value first.
+- **`status` is coloured on a terminal**: green done, yellow pending, red a problem, cyan the command to run, with each path in a brighter shade of its line's colour. A blank line separates the groups, and a row's explanation goes on its own line under the path, so narrow terminals don't wrap into the marks. Pipes and `NO_COLOR` get plain text. It also shows the backups, the Git Bash shim, and two hazards: an sh script on the Windows `PATH`, and `~/bin` on the Windows `PATH`.
+
+### Changed
+
+- **The Git Bash shims moved to `~/bin`**, which Git for Windows puts first on Git Bash's `PATH` and Windows never searches. In v0.1.10 they sat beside `claude.cmd` on the Windows `PATH`, where a resolver that tries the bare name first (Python 3.12.0's `shutil.which`) picked the sh script, and launching it failed with "not a valid Win32 application" (claude-session-backup's `resume`). `install-shim` removes the old ones it wrote and never overwrites a file in `~/bin` that isn't its own.
+- **`uninstall-shim` now puts back everything outside the builds folder as it was**: besides its `PATH` entries, it removes the Git Bash shims from `~/bin` (and `~/bin` itself if `install-shim` created it and it's empty) and, when elevated, the admin copy of the shims in Program Files. It never removes a file that isn't its own. The builds folder (builds, kept originals, `PATH` backups, the `.cmd` shims) stays, so a later `dcc-env` puts everything back.
+- **A shell opened before the install is told how to catch up** (`dcc-env`), instead of being told to run `install-shim` again.
+- **The launcher's first start says "first start"**, and a start after an update says "Claude Code updated", before building.
+
 ## [0.1.10] - 2026-10-08
 
 ### Added
@@ -146,7 +162,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.11...HEAD
 [0.1.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7

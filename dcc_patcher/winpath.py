@@ -145,6 +145,15 @@ def add(scope: str, entry: str, anchor: str | None) -> tuple[bool, str, str, int
     return True, before, after, kind
 
 
+def set_value(scope: str, value: str, kind: int) -> str:
+    """Write a whole value (restoring a backup). Returns the value it replaced."""
+    if kind not in (REG_SZ, REG_EXPAND_SZ):
+        raise PathError(f'unexpected registry type {kind}; not writing it')
+    before, _ = read(scope)
+    _write(scope, before, value, kind)
+    return before
+
+
 def drop(scope: str, entry: str) -> tuple[bool, str, str, int]:
     """Take `entry` out of the scope's PATH. Returns (changed, before, after, type)."""
     before, kind = read(scope)

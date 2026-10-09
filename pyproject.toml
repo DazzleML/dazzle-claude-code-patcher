@@ -46,6 +46,12 @@ Issues = "https://github.com/DazzleML/dazzle-claude-code-patcher/issues"
 [project.scripts]
 dcc-patcher = "dcc_patcher.cli:main"
 
+# dcc-env (cmd, PowerShell, sh) updates the PATH of the shell it runs in, which no
+# program can do for its parent. pip installs these beside dcc-patcher itself, a
+# folder every shell already has on PATH, including shells opened before install-shim.
+[tool.setuptools]
+script-files = ["bin/dcc-env.cmd", "bin/dcc-env.ps1", "bin/dcc-env"]
+
 [tool.setuptools.dynamic]
 version = {attr = "dcc_patcher._version.PIP_VERSION"}
 

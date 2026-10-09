@@ -1,0 +1,9 @@
+# dcc-env: put the dcc-patcher launcher on PATH in THIS shell, setting it up first if needed.
+# Source it: `. dcc-env` (run as a plain command it would only change a child shell).
+# pip installs it beside dcc-patcher.
+if DCC_ENV=1 dcc-patcher install-shim --if-needed; then
+  _dcc_folder="$(dcc-patcher shellenv sh --folder)"
+  [ -n "$_dcc_folder" ] && export PATH="$_dcc_folder:$PATH"
+  unset _dcc_folder
+  dcc-patcher status --brief
+fi

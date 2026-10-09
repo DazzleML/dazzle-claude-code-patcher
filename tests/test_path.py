@@ -66,7 +66,8 @@ def test_install_adds_only_our_entry_before_the_official_folder_and_keeps_the_ty
     assert after == before.replace(str(official.parent), f'{bin_};{official.parent}')
     assert reg.writes == [winpath.USER] and sent
     out = capsys.readouterr().out
-    assert '$env:Path = "' in out and 'this shell started before the change' in out
+    assert 'this shell started before the change' in out
+    assert 'dcc-patcher shellenv powershell | Invoke-Expression' in out    # no dcc-env here; scripts blocked
     assert install.load_records()['base_path_user']['value'] == before
 
 
@@ -86,14 +87,13 @@ def test_uninstall_removes_only_our_entry_and_keeps_what_others_added_since(mach
 def test_a_path_changed_underneath_is_refused_and_not_overwritten(machine, monkeypatch, capsys):
     # CONSEQUENCE: 8 -- overwriting another installer's simultaneous change
     reg, *_ = machine
-    real_read = reg.read
-    calls = []
+    insert = winpath.insert_before
 
-    def racing(scope):                        # reads: install's survey, add's read, then the pre-write check
-        calls.append(scope)
-        value, kind = real_read(scope)
-        return (value + r';C:\raced', kind) if scope == winpath.USER and calls.count(winpath.USER) > 2 else (value, kind)
-    monkeypatch.setattr(reg, 'read', racing)
+    def racing(value, entry, anchor):         # another installer writes after we read, before we write
+        user, kind = reg.values[winpath.USER]
+        reg.values[winpath.USER] = (user + r';C:\raced', kind)
+        return insert(value, entry, anchor)
+    monkeypatch.setattr(winpath, 'insert_before', racing)
     assert main(['install-shim', '--yes']) == 1
     assert reg.writes == [] and 'changed while dcc-patcher was working' in capsys.readouterr().err
 
@@ -136,15 +136,17 @@ def test_status_names_the_stock_claude_then_the_stale_shell_then_all_clear(machi
     reg, official, bin_, sysdir, _ = machine
     assert main(['status']) == 1
     out = capsys.readouterr().out
-    assert f'claude -> {official} (stock Claude Code)' in out and 'user PATH does not have' in out
+    assert f'claude -> {official}\n' in out and '(stock Claude Code)' in out and 'user PATH does not have' in out
+    assert out.startswith('This shell\n') and '\n\nPATH\n' in out and '\n\nLauncher\n' in out   # groups apart
     main(['install-shim', '--yes'])
     capsys.readouterr()
-    main(['status'])
-    assert 'this shell started before that change' in capsys.readouterr().out
+    assert main(['status']) == 1
+    out = capsys.readouterr().out
+    assert '(stock: this shell started before the PATH change)' in out and '-> dcc-patcher install-shim' not in out
     monkeypatch.setenv('PATH', f'{sysdir};{bin_};{official.parent}')
     main(['status'])
     out = capsys.readouterr().out
-    assert f'claude -> {bin_ / "claude.cmd"} (the dcc-patcher shim' in out and 'started before' not in out
+    assert f'claude -> {bin_ / "claude.cmd"}\n' in out and '(the dcc-patcher shim' in out and 'started before' not in out
 
 
 def test_resolution_follows_path_order_then_pathext_order(tmp_path):

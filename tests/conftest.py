@@ -15,6 +15,8 @@ def no_real_path(monkeypatch):
     monkeypatch.setattr(winpath, 'registry', refuse)
     monkeypatch.setattr(winpath, 'broadcast', refuse)
     monkeypatch.setattr(winpath, 'is_elevated', lambda: False)
+    from dcc_patcher import install
+    monkeypatch.setattr(install, 'ps_scripts_allowed', lambda: False)   # not this machine's policy
 
 
 @pytest.fixture

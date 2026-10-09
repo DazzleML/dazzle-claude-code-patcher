@@ -1,0 +1,5 @@
+# Line endings the shells need, whatever the checkout's core.autocrlf:
+# cmd batch files want CRLF, and a script bash sources must be LF ($'\r' errors otherwise).
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+bin/dcc-env text eol=lf

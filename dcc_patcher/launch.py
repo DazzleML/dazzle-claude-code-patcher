@@ -133,7 +133,8 @@ def choose(env=None) -> tuple[str, str | None]:
     # it and the outcome finishes the same line: still one line, said up front.
     if note:
         print(note, file=sys.stderr)
-    print('dcc: Claude Code changed; building the patched copy... ', end='', file=sys.stderr, flush=True)
+    why = 'Claude Code updated' if current else 'first start'
+    print(f'dcc: {why}; building the patched copy... ', end='', file=sys.stderr, flush=True)
     built, failing = rebuild(official)
     _keep_originals(official)
     if built:

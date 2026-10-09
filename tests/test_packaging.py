@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def wheel(tmp_path_factory):
     src = tmp_path_factory.mktemp('src')
     shutil.copytree(ROOT / 'dcc_patcher', src / 'dcc_patcher', ignore=shutil.ignore_patterns('__pycache__'))
+    shutil.copytree(ROOT / 'bin', src / 'bin')                  # the dcc-env scripts (#9)
     for name in ('pyproject.toml', 'README.md', 'LICENSE'):
         if (ROOT / name).exists():
             shutil.copy2(ROOT / name, src / name)
@@ -39,6 +40,16 @@ def test_the_wheel_carries_the_patch_specs_and_the_shim_templates(wheel):
                   'J-history-across-files', 'V-version-label'):
         assert f'dcc_patcher/patches/{patch}/patch.toml' in names
     assert {'dcc_patcher/shims/claude.cmd.in', 'dcc_patcher/shims/claude.sh.in'} <= names
+
+
+def test_the_wheel_installs_dcc_env_beside_dcc_patcher_with_the_line_ends_each_shell_needs(wheel, tmp_path):
+    # CONSEQUENCE: 6 -- a shell opened before install-shim has no one-word way onto the shim
+    names = zipfile.ZipFile(wheel).namelist()
+    scripts = {n.rsplit('/', 1)[-1]: n for n in names if '.data/scripts/' in n}
+    assert {'dcc-env.cmd', 'dcc-env.ps1', 'dcc-env'} <= set(scripts)
+    z = zipfile.ZipFile(wheel)
+    assert b'\r\n' in z.read(scripts['dcc-env.cmd'])          # cmd wants CRLF
+    assert b'\r' not in z.read(scripts['dcc-env'])            # bash, when sourced, chokes on CR
 
 
 def test_an_installed_wheel_finds_its_bundled_patches(wheel, tmp_path):
