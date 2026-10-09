@@ -41,6 +41,13 @@ def build_name(claude_version: str, suffix: str) -> str:
     return f'{CURRENT}-{claude_version}+dcc{BASE_VERSION}{suffix}'
 
 
+def made_by_this_version(name: str) -> bool:
+    """Whether a build's file name carries this patcher's version. A build made by an
+    older dcc-patcher lacks the patches added since, so the launcher rebuilds it."""
+    stem = name.split('.exe')[0] if name.endswith('.exe') else name
+    return stem.endswith(f'+dcc{BASE_VERSION}')
+
+
 def version_of(data: bytes) -> str:
     """Claude Code's version, from the VERSION constant its bundle carries."""
     m = re.search(rb'VERSION:"(\d+\.\d+\.\d+)"', data)

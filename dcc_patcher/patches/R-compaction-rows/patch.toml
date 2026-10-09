@@ -1,0 +1,23 @@
+# Compaction rows in the normal view: the normal screen draws each compaction summary
+# where it happened (a bold "Compact summary (ctrl+o to expand)" line), as the
+# transcript (Ctrl+O) does, so both views start at the same first row of a resumed
+# session. Display only: nothing changes in what is loaded or sent to the model.
+# Found on Claude Code 2.1.295 (Windows); the same shape on every build from 2.1.278.
+format = 1
+id = "R"
+title = "Compaction rows in the normal view"
+issue = "DazzleML/dazzle-claude-code-patcher#7"
+module_marker = "tengu_filtered_trailing_thinking_block"
+signature = "/*dazzle-claude-code:rows-v1*/"
+
+# The normal screen builds its rows through a filter that drops every user row
+# marked isVisibleInTranscriptOnly unless the screen is the transcript. Compaction
+# summaries are created with that mark. The renderer behind the filter already knows
+# how to draw them on the normal screen, so letting the summaries through is the
+# whole patch. Other transcript-only rows (meta rows and the like) stay hidden.
+[[edit]]
+name = "prompt-screen row filter: keep compaction summaries"
+near = "tengu_filtered_trailing_thinking_block"
+window = 3000
+pattern = 'if\((?P<e>[\w$]+)\.isVisibleInTranscriptOnly&&!(?P<n>[\w$]+)\)return!1;return!0\}'
+replace = 'if(@@e@@.isVisibleInTranscriptOnly&&!@@n@@&&!@@e@@.isCompactSummary)return!1;return!0}'

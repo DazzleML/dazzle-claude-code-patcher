@@ -22,6 +22,13 @@ def test_the_history_patch_loads():
     assert patch.edits[4].expect == 2
 
 
+def test_the_compaction_rows_patch_loads_as_one_display_edit():
+    # #7: one edit in the prompt screen's row filter, no prelude: display only
+    patch = spec.load(ROOT / 'dcc_patcher' / 'patches' / 'R-compaction-rows' / 'patch.toml')
+    assert patch.id == 'R' and len(patch.edits) == 1 and not patch.prelude
+    assert 'isCompactSummary' in patch.edits[0].replace and 'isVisibleInTranscriptOnly' in patch.edits[0].pattern
+
+
 @pytest.mark.parametrize('edit, words', [
     ({'pattern': 'aé'}, 'ASCII'),
     ({'replace': '@@nope@@'}, '@@nope@@ is not captured'),

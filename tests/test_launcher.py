@@ -306,6 +306,24 @@ def test_dcc_mode_may_name_a_build_for_one_shell(world, launched, monkeypatch, c
     assert 'Claude Code updated; building' in capsys.readouterr().err   # patched follows the update
 
 
+def test_a_build_made_by_an_older_patcher_is_rebuilt_at_the_next_start(world, launched, monkeypatch, capsys):
+    # v0.2.2: a new patch (or a changed one) reaches `claude` without waiting for a Claude Code
+    # update. The build's name carries the patcher version that made it; a mismatch rebuilds.
+    from dcc_patcher import builds
+    official, builds_dir, _ = world
+    start()
+    old = launched[-1][0]
+    capsys.readouterr()
+    start()
+    assert launched[-1][0] == old and 'building' not in capsys.readouterr().err   # same patcher: no rebuild
+    monkeypatch.setattr(builds, 'BASE_VERSION', '9.9.9')                            # "pip install" of a newer one
+    start()
+    err = capsys.readouterr().err
+    assert 'dcc-patcher updated; building the patched copy' in err
+    assert launched[-1][0] != old and launched[-1][0].endswith('+dcc9.9.9' + Path(old).suffix)
+    assert (builds_dir / Path(old).name).is_file()                                   # the old build is kept
+
+
 @pytest.mark.skipif(os.name != 'nt', reason='the Windows layout')
 def test_reinstalling_moves_the_old_sh_shims_off_the_windows_path_and_spares_files_not_ours(world, tmp_path, capsys):
     # CONSEQUENCE: 8 -- csb's `resume` failed with WinError 193 on the sh script v0.1.10 left there

@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-09
+
+### Added
+
+- **Compaction rows in the normal view** (`patches/R-compaction-rows/`, #7). The normal screen now draws each compaction summary where it happened, as a bold `Compact summary (ctrl+o to expand)` line, the same row the transcript starts with, so after a resume `Ctrl+Home` lands on the same first row in both views and a bookmark on a compaction summary has somewhere to land. One edit in the prompt screen's row filter, which dropped every transcript-only user row; it now keeps the compaction summaries and nothing else. Display only: what is loaded and what the model receives are unchanged. Applies on 2.1.278 to 2.1.295.
+- **The launcher rebuilds when dcc-patcher itself changed**, not only when Claude Code did. A build's name carries the patcher version that made it; when that isn't the installed version, the next start says `dcc: dcc-patcher updated; building the patched copy...` and runs the new build, so a new or changed patch reaches `claude` right after `pip install --upgrade`. The older build stays in the builds folder.
+
 ## [0.2.1] - 2026-10-09
 
 ### Added
@@ -187,7 +194,8 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/releases/tag/v0.2.0
 [0.1.11]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/e0aa8ec305c8d8fc29f1bc5314a0655818265c42

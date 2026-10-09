@@ -130,7 +130,8 @@ def choose(env=None) -> tuple[str, str | None]:
     except OSError as e:
         return official, _join(note, f'dcc: cannot read {official} ({e.strerror or e}); running it as is')
     current = st.get('current')
-    if current and (builds.builds_dir() / current).is_file() and built_from(current) == sha:
+    fresh = bool(current) and (builds.builds_dir() / current).is_file() and built_from(current) == sha
+    if fresh and builds.made_by_this_version(current):
         if writable:
             save_state(st)                                  # keeps the sha cache fresh
         return str(builds.builds_dir() / current), note
@@ -141,7 +142,7 @@ def choose(env=None) -> tuple[str, str | None]:
     # it and the outcome finishes the same line: still one line, said up front.
     if note:
         print(note, file=sys.stderr)
-    why = 'Claude Code updated' if current else 'first start'
+    why = 'dcc-patcher updated' if fresh else ('Claude Code updated' if current else 'first start')
     print(f'dcc: {why}; building the patched copy... ', end='', file=sys.stderr, flush=True)
     built, failing = rebuild(official)
     _keep_originals(official)
