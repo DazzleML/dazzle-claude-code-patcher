@@ -176,15 +176,15 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 
 [Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/releases/tag/v0.2.0
-[0.1.11]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.10...v0.1.11
-[0.1.10]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.9...v0.1.10
-[0.1.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...v0.1.9
-[0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...v0.1.8
-[0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7
-[0.1.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.5...v0.1.6
-[0.1.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.4...v0.1.5
-[0.1.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.3...v0.1.4
-[0.1.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/releases/tag/v0.1.0
+[0.1.11]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/e0aa8ec305c8d8fc29f1bc5314a0655818265c42
+[0.1.10]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/40423e590306a4b3481a45a5c11ddaeba7cd3a23
+[0.1.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/6262f679cb17cd8331201794ab841533fcad5f50
+[0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/94d9f5ab77583ccd6fefaa138b0e6984ed6d3f2a
+[0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/9b84f6cfb96afa074f873e84ff125d02a43ff74e
+[0.1.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/23b92bcae02dbfe8e114c6ff33344b23efc12b2b
+[0.1.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/35e2736a3d0b147e22a0d0dbb0a750ad195b7b4b
+[0.1.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/78865b92f2c3a4c1201bb6c2b8f2cd24ce0c7d23
+[0.1.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/6cbf0af6daf78c6b2e7f5679b4af5fde1a0d49a9
+[0.1.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/52e38298478081a794b82e092b51111036530cc2
+[0.1.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/16a5fab94b4f6166ac30c649e866f03e8da0731e
+[0.1.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/fff40a72a499d3756830d86c6b1af2b1a75ef41c
