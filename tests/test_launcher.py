@@ -125,6 +125,33 @@ def test_a_patch_needing_a_human_after_an_update_runs_stock_with_one_line(world,
     assert err.count('\n') == 1 and 'patch T needs attention' in err and 'running stock' in err
 
 
+def test_a_rebuild_says_so_before_it_starts_and_finishes_the_same_line(world, launched, monkeypatch, capsys):
+    # CONSEQUENCE: 5 -- a silent ~3 s pause on the first start after an update (#9)
+    seen = []
+
+    def slow_rebuild(official):
+        seen.append(capsys.readouterr().err)        # what was on screen when the build began
+        return None, ['T']
+    monkeypatch.setattr(launch, 'rebuild', slow_rebuild)
+    assert start() == 0
+    assert seen[0].startswith('dcc: Claude Code changed; building') and not seen[0].endswith('\n')
+    whole = seen[0] + capsys.readouterr().err
+    assert whole.count('\n') == 1 and whole.rstrip().endswith(f'(dcc-patcher check "{world[0]}")')
+
+
+def test_a_rebuild_also_keeps_the_original_and_the_updaters_old_copies(world, launched):
+    # CONSEQUENCE: 7 -- the updater deletes its .old copies after 30 days (#9)
+    official, builds_dir, _ = world
+    old = official.with_name(official.name + '.old.1790095191038')
+    old.write_bytes(official_bytes('2.1.900'))
+    before = sorted((p.name, p.stat().st_mtime_ns) for p in official.parent.iterdir())
+    start()
+    sfx = official.suffix
+    assert {p.name for p in builds_dir.glob('claude-cc-*')} == {f'claude-cc-2.1.999{sfx}', f'claude-cc-2.1.900{sfx}'}
+    assert (builds_dir / f'claude-cc-2.1.900{sfx}').read_bytes() == old.read_bytes()
+    assert sorted((p.name, p.stat().st_mtime_ns) for p in official.parent.iterdir()) == before
+
+
 def test_a_rebuild_that_crashes_still_starts_stock(world, launched, monkeypatch, capsys):
     official, _, _ = world
     monkeypatch.setattr(cli, 'build', lambda f: 1 / 0)

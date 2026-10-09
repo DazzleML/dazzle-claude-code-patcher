@@ -106,7 +106,8 @@ def test_rebuilding_the_same_versions_reports_already_built_and_duplicates_nothi
     assert f'already built: {build}' in capsys.readouterr().out
     assert build.stat().st_mtime_ns == mtime
     assert sorted(p.name for p in builds.iterdir()) == sorted(
-        [build.name, f'{build.name}.dcc-lock.json', 'claude-dcc.exe'])
+        [build.name, f'{build.name}.dcc-lock.json', 'claude-dcc.exe',
+         'claude-cc-2.1.999.exe', 'originals.json'])           # the original, kept once (#9)
 
 
 @pytest.mark.parametrize('where', ['default', '-o', 'CLAUDE_CONFIG_DIR'])

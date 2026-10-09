@@ -6,7 +6,7 @@
 
 > **Fix problematic Claude Code bugs in your local copy now, and keep the fixes working across updates.**
 
-`dcc-patcher` applies, verifies and diagnoses patches to the native Claude Code CLI (`claude.exe`). When Claude Code updates (roughly every two days), one command tells you which patches re-apply as-is and which need attention, and shows exactly what changed.
+`dcc-patcher` diagnoses, verifies, and applies patches to the native Claude Code CLI (`claude.exe`). When Claude Code updates (roughly every two days), one command tells you which patches re-apply as-is and which need attention, and shows exactly what changed.
 
 > [!NOTE]
 > **Pre-alpha, Windows only.** The proof of concept works on Claude Code 2.1.289: the first patch lets a resumed session scroll back past its compactions, and the model still receives exactly the same request as stock Claude Code. The tool now checks, applies and diagnoses that patch; a live run of the tool's own build is the next step before v0.2.0. See the [Roadmap](https://github.com/DazzleML/dazzle-claude-code-patcher/issues/1).
@@ -26,9 +26,7 @@ Some Claude Code bugs sit in code you can't configure around. For example, after
 | Banner label ([classic](dcc_patcher/patches/B-banner-label/patch.toml), [flicker-free](dcc_patcher/patches/B2-banner-label-flicker-free/patch.toml)) | The header at the top of every session reads `Dazzle Claude Code v2.1.291 · dcc 0.1.3`, in both rendering modes. Only the drawn text changes | `check` passes on 2.1.278 to 2.1.292; flicker-free live-tested on 2.1.291 |
 
 > [!CAUTION]
-> **This project ships the tool and patch definitions only *NEVER* patched binaries.** You patch your own copy of Claude Code, locally.  
->
-> Use at your own risk. No warranty. Backup anything important first. For myself I use: [claude-session-backup](https://github.com/DazzleML/Claude-Session-Backup). 
+> **This project ships the tool and patch definitions only *NEVER* patched binaries.** You patch your own copy of Claude Code, locally. Use at your own risk. No warranty. Backup anything important first. I'd recommend: [claude-session-backup](https://github.com/DazzleML/Claude-Session-Backup). 
 
 ## Installation
 
@@ -73,10 +71,17 @@ dcc-patcher apply %USERPROFILE%\.local\bin\claude.exe
 ### Make the patched build just `claude`
 
 ```bash
-dcc-patcher install-shim        # writes claude, claude-stock (and .cmd versions on Windows) to <builds>\bin
+dcc-patcher install-shim        # writes claude and claude-stock to <builds>\bin and puts that folder on PATH
+dcc-patcher status              # which claude this shell runs, and anything left to do
 ```
 
-Put that folder **ahead of** `%USERPROFILE%\.local\bin` on `PATH`, and keep `.local\bin` on `PATH` as well: Claude Code's updater checks that it's there. From then on, `claude` runs the current patched build. When the official `claude.exe` has updated, the next start rebuilds and switches to the new build. If a patch needs attention after an update, it runs stock instead, with one line naming the patch. `claude-stock` always runs the official build.
+`install-shim` asks before it changes `PATH` (`--yes` skips the question, `--no-path` leaves `PATH` alone). On Windows it adds one entry to your user `PATH`, the shim folder, just before `%USERPROFILE%\.local\bin`, which stays on `PATH` because Claude Code's updater checks for it. Nothing else in `PATH` changes: the value keeps its registry type, `%VAR%` entries stay unexpanded, and the result is read back to confirm. If the system `PATH` (searched before yours) has a `claude` of its own, an elevated `install-shim` puts an admin-only copy of the shims just ahead of it; otherwise the system `PATH` is never written. `dcc-patcher uninstall-shim` removes only the entries it added, so anything another installer added since stays. The `PATH` values it first saw, and every change, are recorded in the builds folder (`path.json`, `path-log.jsonl`).
+
+New shells pick the change up. A shell can't have its `PATH` changed from outside, so `install-shim` ends by printing the one line that puts the shims on `PATH` in the shell you ran it from; `dcc-patcher shellenv` prints it again.
+
+From then on, `claude` runs the current patched build. When the official `claude.exe` has updated, the next start says so, rebuilds (a few seconds) and switches to the new build. If a patch needs attention after an update, it runs stock instead, with one line naming the patch. `claude-stock` always runs the official build.
+
+Every original Claude Code a build is made from is kept beside the builds as `claude-cc-<version>.exe`, and so are the updater's own `claude.exe.old.*` backups, which it deletes after a while. That keeps every release available for re-testing a patch or comparing a build with its original. `dcc-patcher archive` keeps any not kept yet (about 250 MB each).
 
 | Command | What `claude` runs from the next start |
 |---|---|

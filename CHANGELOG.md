@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-10-08
+
+### Added
+
+- **`install-shim` puts the launcher on `PATH` for you** (Windows), after asking (`--yes` skips the question, `--no-path` leaves `PATH` alone). It adds one entry to the user `PATH`, the shim folder, just before Claude Code's own folder, and changes nothing else: the registry type and `%VAR%` entries are kept, and the value is read back to confirm. When the system `PATH` has a `claude` of its own, an elevated run puts an admin-only copy of the shims just ahead of it; otherwise the system `PATH` is never touched. The first values seen and every change are recorded in the builds folder.
+- **`dcc-patcher uninstall-shim`** removes only the entries `install-shim` added, so anything other installers added since stays.
+- **`dcc-patcher status`**: which `claude` this shell runs (every candidate, in the order the shell searches), whether the user and system `PATH` are set up, whether this shell was opened before the change, what the next start will run, and whether every original build is kept. Each open item comes with the command that fixes it; the exit code is 1 while anything is open.
+- **`dcc-patcher shellenv`** prints the one line that puts the launcher on `PATH` in the current shell (cmd, PowerShell or sh), so a shell opened before the install needn't be closed.
+- **Every original Claude Code is kept** as `claude-cc-<version>.exe` in the builds folder: the input of every build, and the updater's own `claude.exe.old.*` backups, which it deletes after a while. `dcc-patcher archive` keeps any not kept yet.
+
+### Changed
+
+- **The launcher says it's rebuilding before it starts**, on the same single line that then reports the result.
+
+### Fixed
+
+- **Building from an updater backup (`claude.exe.old.<number>`) names the build `.exe`**, instead of using the number as its extension.
+
 ## [0.1.9] - 2026-10-07
 
 ### Changed
@@ -128,7 +146,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.10...HEAD
 [0.1.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.1.6...v0.1.7

@@ -17,7 +17,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from . import builds, diagnose, engine, lock, spec
+from . import builds, diagnose, engine, lock, originals, spec
 from ._version import DISPLAY_VERSION
 from .containers import ContainerError, UnsupportedFormat, open_container
 from .spec import SpecError
@@ -25,9 +25,7 @@ from .spec import SpecError
 PATCHES_DIR = Path(__file__).resolve().parent / 'patches'   # package data, so a wheel carries them (#4)
 
 
-def _version_of(data: bytes) -> str:
-    m = re.search(rb'VERSION:"(\d+\.\d+\.\d+)"', data)
-    return m.group(1).decode() if m else 'unknown'
+_version_of = builds.version_of
 
 
 def _open(path):
@@ -125,9 +123,12 @@ def _build(file, data, exe, patches, output, debug) -> tuple[int, str | None, li
     given = output
     if not output:
         tag = version if version != 'unknown' else f'unknown-{lock._sha(data)[:12]}'
-        output = str(builds.builds_dir() / builds.build_name(tag, Path(file).suffix))
+        output = str(builds.builds_dir() / builds.build_name(tag, builds.exe_suffix(file)))
         if _refuse_output(output):
             return 2, None, []
+        kept, new = originals.keep(data, version, builds.exe_suffix(file))
+        if new:
+            print(f'kept the original as {kept}')
     image, results = engine.apply(exe, patches, debug=debug)
     _report(results)
     if not all(r.ok for r in results):
@@ -282,6 +283,20 @@ def cmd_rollback(args) -> int:
     return 0
 
 
+def cmd_archive(args) -> int:
+    from . import launch
+    official = args.official or launch.load_state()['official']
+    if _refuse_output(builds.builds_dir()):
+        return 2
+    found = originals.candidates(official)
+    if not found:
+        print(f'dcc-patcher: no Claude Code at {official}', file=sys.stderr)
+        return 1
+    new = originals.sweep(official)
+    print(f'{len(new)} newly kept, {len(found) - len(new)} already kept, in {builds.builds_dir()}')
+    return 0
+
+
 SHIMS = Path(__file__).resolve().parent / 'shims'
 
 
@@ -293,9 +308,24 @@ def cmd_install_shim(args) -> int:
     if folder == official_bin or official_bin in folder.parents:
         print(f'dcc-patcher: refusing to write into the official install\'s folder ({official_bin})', file=sys.stderr)
         return 2
+    _write_shims(folder)
+    if args.no_path:
+        print(f'PATH not changed (--no-path). Put {folder} ahead of {official_bin} on PATH '
+              f'(keep {official_bin} on PATH too: the updater checks it).')
+        return 0
+    from . import install, launch
+    try:
+        return install.install(folder, launch.load_state()['official'], args.yes,
+                               lambda where: _write_shims(where, posix_too=False))
+    except (install.winpath.PathError, OSError) as e:
+        print(f'dcc-patcher: {e}', file=sys.stderr)
+        return 1
+
+
+def _write_shims(folder: Path, posix_too: bool = True):
     python = sys.executable
-    kinds = [('claude.cmd', 'claude.cmd.in'), ('claude', 'claude.sh.in')] if sys.platform == 'win32' \
-        else [('claude', 'claude.sh.in')]
+    kinds = [('claude.cmd', 'claude.cmd.in')] + ([('claude', 'claude.sh.in')] if posix_too else []) \
+        if sys.platform == 'win32' else [('claude', 'claude.sh.in')]
     folder.mkdir(parents=True, exist_ok=True)
     for name, template in kinds:
         text = (SHIMS / template).read_text(encoding='ascii')
@@ -312,7 +342,26 @@ def cmd_install_shim(args) -> int:
             if posix:
                 target.chmod(0o755)
             print(f'wrote {target}')
-    print(f'Put {folder} ahead of {official_bin} on PATH (keep {official_bin} on PATH too: the updater checks it).')
+
+
+def cmd_uninstall_shim(args) -> int:
+    from . import install
+    try:
+        return install.uninstall()
+    except (install.winpath.PathError, OSError) as e:
+        print(f'dcc-patcher: {e}', file=sys.stderr)
+        return 1
+
+
+def cmd_status(args) -> int:
+    from . import install
+    return install.status()
+
+
+def cmd_shellenv(args) -> int:
+    from . import install
+    entry = install.load_records().get('entry') or str(builds.builds_dir() / 'bin')
+    print(install.shellenv(entry, args.shell or install.detect_shell() or 'powershell'))
     return 0
 
 
@@ -368,9 +417,23 @@ def main(argv=None):
     p.set_defaults(func=cmd_use)
     p = sub.add_parser('rollback', help='pin the build before the current one')
     p.set_defaults(func=cmd_rollback)
-    p = sub.add_parser('install-shim', help='write the claude and claude-stock launchers')
+    p = sub.add_parser('install-shim', help='write the claude and claude-stock launchers and put them on PATH')
     p.add_argument('--dir', help='where to write them (default: <builds folder>/bin)')
+    p.add_argument('--yes', action='store_true', help='change PATH without asking (also: DCC_YES=1)')
+    p.add_argument('--no-path', action='store_true', help='write the launchers only; leave PATH alone')
     p.set_defaults(func=cmd_install_shim)
+    p = sub.add_parser('uninstall-shim', help='take the launchers off PATH (only the entries dcc-patcher added)')
+    p.set_defaults(func=cmd_uninstall_shim)
+    p = sub.add_parser('status', help='which claude this shell runs, and whether PATH, the launcher '
+                       'and the kept originals are in order')
+    p.set_defaults(func=cmd_status)
+    p = sub.add_parser('shellenv', help='print the line that puts the launchers on PATH in this shell')
+    p.add_argument('shell', nargs='?', choices=('cmd', 'powershell', 'sh'), help='default: detected')
+    p.set_defaults(func=cmd_shellenv)
+    p = sub.add_parser('archive', help='keep every original Claude Code beside the official one '
+                       '(including the updater\'s .old copies) in the builds folder')
+    p.add_argument('official', nargs='?', help='the official executable (default: the launcher\'s)')
+    p.set_defaults(func=cmd_archive)
     args = parser.parse_args(argv)
     if not getattr(args, 'func', None):
         parser.print_help(sys.stderr)

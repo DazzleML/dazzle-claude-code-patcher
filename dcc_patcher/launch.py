@@ -129,15 +129,31 @@ def choose(env=None) -> tuple[str, str | None]:
     if not writable:
         return official, _join(note, 'dcc: Claude Code changed since the current build, and this is the test '
                                      'config (CLAUDE_CONFIG_DIR), so nothing is rebuilt here; running stock')
+    # The build takes a few seconds (about 3 on 2.1.292), so the line starts before
+    # it and the outcome finishes the same line: still one line, said up front.
+    if note:
+        print(note, file=sys.stderr)
+    print('dcc: Claude Code changed; building the patched copy... ', end='', file=sys.stderr, flush=True)
     built, failing = rebuild(official)
+    _keep_originals(official)
     if built:
         st['current'] = Path(built).name
         save_state(st)
-        return built, _join(note, f'dcc: Claude Code updated; now running {Path(built).name}')
+        return built, f'done; now running {Path(built).name}'
     save_state(st)
     which = f'patch {", ".join(failing)} needs' if failing else 'the rebuild needs'
-    return official, _join(note, f'dcc: {which} attention after the Claude Code update; '
-                                 f'running stock (dcc-patcher check "{official}")')
+    return official, f'{which} attention; running stock (dcc-patcher check "{official}")'
+
+
+def _keep_originals(official: str):
+    """Keep any original Claude Code beside the official exe that isn't kept yet
+    (the updater deletes its .old copies after 30 days). Never stops a start."""
+    from . import originals
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            originals.sweep(official)
+    except Exception:
+        pass
 
 
 def _join(*notes) -> str | None:

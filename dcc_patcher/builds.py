@@ -13,6 +13,7 @@ into a folder kept under git (#3's comment).
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -38,6 +39,18 @@ def builds_dir() -> Path:
 
 def build_name(claude_version: str, suffix: str) -> str:
     return f'{CURRENT}-{claude_version}+dcc{BASE_VERSION}{suffix}'
+
+
+def version_of(data: bytes) -> str:
+    """Claude Code's version, from the VERSION constant its bundle carries."""
+    m = re.search(rb'VERSION:"(\d+\.\d+\.\d+)"', data)
+    return m.group(1).decode() if m else 'unknown'
+
+
+def exe_suffix(path) -> str:
+    """'.exe' for a Windows build, '' otherwise -- also for the updater's
+    `claude.exe.old.<ms>` copies, whose last suffix is the timestamp."""
+    return '.exe' if '.exe' in Path(path).name.lower() else ''
 
 
 def config_dirs() -> list[Path]:
