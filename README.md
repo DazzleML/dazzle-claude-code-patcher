@@ -1,7 +1,12 @@
 # dazzle-claude-code-patcher
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/DazzleML/dazzle-claude-code-patcher/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/dazzle-claude-code-patcher?color=green)](https://pypi.org/project/dazzle-claude-code-patcher/)
+[![Release Date](https://img.shields.io/github/release-date/DazzleML/dazzle-claude-code-patcher?color=green)](https://github.com/DazzleML/dazzle-claude-code-patcher/releases)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/dazzle-claude-code-patcher?period=total&units=international_system&left_color=black&right_color=green&left_text=downloads)](https://pypistats.org/packages/dazzle-claude-code-patcher)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/DazzleML/dazzle-claude-code-patcher/blob/main/LICENSE)
+[![GitHub Discussions](https://img.shields.io/github/discussions/DazzleML/dazzle-claude-code-patcher)](https://github.com/DazzleML/dazzle-claude-code-patcher/discussions)
+[![Installs](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/djdarcy/f7a6548744c4bfa11989d00d78fe59ed/raw/installs.json)](https://dazzleml.github.io/dazzle-claude-code-patcher/stats/#installs)
 [![Platform](https://img.shields.io/badge/platform-Windows%20(first)-lightgrey.svg)](https://github.com/DazzleML/dazzle-claude-code-patcher/blob/main/docs/platform-support.md)
 
 > **Fix problematic Claude Code bugs in your local copy now, and keep the fixes working across updates.**

@@ -1,0 +1,13 @@
+{
+  "owner": "DazzleML",
+  "repo": "dazzle-claude-code-patcher",
+  "created": "2026-10-05",
+  "display_name": "dazzle-claude-code-patcher",
+  "badge_gist_id": "f7a6548744c4bfa11989d00d78fe59ed",
+  "archive_gist_id": "689e174db13460b21371ea989182110a",
+  "dashboard_dir": "docs/stats",
+  "schema_version": 1,
+  "ci_workflows": [
+    "CI"
+  ]
+}
