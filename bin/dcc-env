@@ -1,9 +1,14 @@
 # dcc-env: put the dcc-patcher launcher on PATH in THIS shell, setting it up first if needed.
 # Source it: `. dcc-env` (run as a plain command it would only change a child shell).
+#   . dcc-env stock | patched | <build file name>   also choose what `claude` runs in THIS shell
+#   . dcc-env default                               go back to the persistent choice (dcc-patcher use)
 # pip installs it beside dcc-patcher.
 if DCC_ENV=1 dcc-patcher install-shim --if-needed; then
   _dcc_folder="$(dcc-patcher shellenv sh --folder)"
   [ -n "$_dcc_folder" ] && export PATH="$_dcc_folder:$PATH"
   unset _dcc_folder
+  if [ -n "$1" ]; then
+    if [ "$1" = "default" ]; then unset DCC_MODE; else export DCC_MODE="$1"; fi
+  fi
   dcc-patcher status --brief
 fi

@@ -194,6 +194,19 @@ def _ahead(value: str, entry: str, anchor: str | None) -> bool:
     return here is not None and (at is None or here < at)
 
 
+def posix_dir_ahead(path_value: str, entry: str, shell: str | None) -> bool:
+    """In a cmd or PowerShell (not Git Bash, where ~/bin belongs first), is ~/bin on this
+    shell's PATH ahead of the shim folder, or there without it? PowerShell would then
+    resolve `claude-stock` to the extensionless sh script and hand it to Windows."""
+    if shell == 'sh' or sys.platform != 'win32':
+        return False
+    posix = winpath.position(path_value, str(builds.posix_shim_dir()))
+    if posix is None:
+        return False
+    ours = winpath.position(path_value, entry)
+    return ours is None or posix < ours
+
+
 def ps_scripts_allowed() -> bool:
     """Whether PowerShell will run a local, unsigned .ps1 (the `dcc-env` script).
     Read from the registry the way PowerShell resolves its execution policy;
@@ -239,17 +252,25 @@ def shell_folder(posix: bool = False) -> str:
     if posix and sys.platform == 'win32':
         entry = str(builds.posix_shim_dir())    # the sh shims live apart from the .cmd ones
     anchor = str(Path(launch.load_state()['official']).parent)
-    if _ahead(os.environ.get('PATH', ''), entry, anchor):
+    here = os.environ.get('PATH', '')
+    # "already fine" means ahead of the official folder AND, in cmd or PowerShell, ahead of
+    # an inherited ~/bin, whose extensionless sh shims PowerShell would otherwise pick
+    if _ahead(here, entry, anchor) and not (not posix and posix_dir_ahead(here, entry, 'powershell')):
         return ''
     return shellenv(entry, 'sh')[len('export PATH="'):-len(':$PATH"')] if posix else entry
 
 
 # -- install and uninstall ----------------------------------------------------------------
 
+SHIM_NAMES = ('claude', 'claude-stock', 'dazzle-claude')
+
+
 def is_set_up(folder: Path, official: str) -> bool:
-    """The shims exist and the user PATH already has them ahead of the official folder."""
-    shim = folder / ('claude.cmd' if sys.platform == 'win32' else 'claude')
-    if not shim.is_file():
+    """All three shims exist and the user PATH already has them ahead of the official folder.
+    False for an older layout (a missing name, an sh shim beside the .cmd ones), so that
+    `dcc-env` migrates it."""
+    ext = '.cmd' if sys.platform == 'win32' else ''
+    if not all((folder / f'{n}{ext}').is_file() for n in SHIM_NAMES):
         return False
     if sys.platform != 'win32':
         return True
@@ -347,10 +368,11 @@ def uninstall() -> int:
         else:
             print(f'system PATH: {rec["system_entry"]} is still there; run `dcc-patcher uninstall-shim` elevated')
             code = 1
-    _remove_ours(builds.posix_shim_dir(), ('claude', 'claude-stock'), posix_dir_created(rec))
-    _remove_ours(Path(entry), ('claude', 'claude-stock'), False)          # v0.1.10's sh shims, if any
+    names = SHIM_NAMES
+    _remove_ours(builds.posix_shim_dir(), names, posix_dir_created(rec))
+    _remove_ours(Path(entry), names, False)                               # v0.1.10's sh shims, if any
     if rec.get('admin_dir_created') is not None and not rec.get('system_entry'):
-        _remove_ours(admin_bin(), ('claude.cmd', 'claude-stock.cmd'), rec['admin_dir_created'], parent_too=True)
+        _remove_ours(admin_bin(), tuple(f'{n}.cmd' for n in names), rec['admin_dir_created'], parent_too=True)
     winpath.broadcast()
     print('the .cmd shims and the rest of the builds folder (builds, kept originals, PATH backups) stay; '
           '`dcc-env` or `dcc-patcher install-shim` puts everything back')
@@ -458,8 +480,10 @@ def status(brief: bool = False) -> int:
     if brief:
         print('\n'.join(lines))
         return 1
-    stock = resolve.winner('claude-stock', here, pathext=os.environ.get('PATHEXT'))
-    item('x' if stock else '~', f'claude-stock -> {P(stock)}' if stock else 'claude-stock: not on this shell\'s PATH')
+    for name in ('claude-stock', 'dazzle-claude'):
+        w = resolve.winner(name, here, pathext=os.environ.get('PATHEXT'))
+        item('x' if w else ' ', f'{name} -> {P(w)}' if w else f'{name}: not on this shell\'s PATH',
+             None if w else 'dcc-env')
     if sys.platform == 'win32':
         sh = builds.posix_shim_dir() / 'claude'
         stale = Path(entry) / 'claude'
@@ -470,6 +494,11 @@ def status(brief: bool = False) -> int:
             # Git Bash adds ~/bin to its own PATH, which is right; only the Windows PATH is a hazard
             item('!', f'{P(sh.parent)} is on the Windows PATH', f'take {P(sh.parent)} off the Windows PATH '
                  '(Git Bash adds it by itself)', note=f'so Windows tools can pick the sh script {P(sh)}')
+        elif posix_dir_ahead(here, entry, detect_shell()):
+            # a cmd or PowerShell opened from Git Bash inherits ~/bin ahead of the shims: PowerShell
+            # then hands the extensionless sh script to Windows ("How do you want to open this file?")
+            item('!', f'{P(sh.parent)} is ahead of the shims on this shell\'s PATH', 'dcc-env',
+                 note='inherited from Git Bash; PowerShell would open the sh script with Windows instead')
         item('x' if sh.is_file() else '~', f'Git Bash: claude -> {P(sh)}' if sh.is_file()
              else f'Git Bash: no shim in {P(sh.parent)}', None if sh.is_file() else 'dcc-patcher install-shim')
 
@@ -528,8 +557,21 @@ def status(brief: bool = False) -> int:
 
 
 def _runs(st: dict, mark=str) -> str:
-    if os.environ.get('DCC_MODE') == 'stock' or st['mode'] == 'stock':
+    """What `claude` runs from this shell, and why: this shell's DCC_MODE when it is set
+    (dcc-env stock | patched | <build>), else the persistent choice (dcc-patcher use)."""
+    from . import launch
+    env = os.environ.get('DCC_MODE')
+    if env and not launch.valid_mode(env):
+        return f'{_describe(st["mode"], st, mark)}; this shell\'s DCC_MODE={env} is not stock, patched or ' \
+               f'a build and is ignored'
+    if env:
+        return f'{_describe(env, st, mark)} (this shell: dcc-env {env}; persistent: {st["mode"]})'
+    return f'{_describe(st["mode"], st, mark)} (persistent: dcc-patcher use {st["mode"]})'
+
+
+def _describe(mode: str, st: dict, mark=str) -> str:
+    if mode == 'stock':
         return 'stock'
-    if st['mode'] != 'patched':
-        return f'the pinned build {mark(st["mode"])}'
+    if mode != 'patched':
+        return f'the pinned build {mark(mode)}'
     return mark(st['current']) if st.get('current') else 'a new patched build'

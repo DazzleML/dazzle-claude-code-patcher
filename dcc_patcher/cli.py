@@ -339,16 +339,26 @@ MARKER = b'Written by dcc-patcher install-shim'
 posix_shim_dir = builds.posix_shim_dir
 
 
+# The three names on PATH: `claude` runs whatever `dcc-patcher use` (or this shell's
+# DCC_MODE) says; the other two are explicit whatever `claude` means.
+SHIM_STEMS = (('claude', 'the current build (dcc-patcher use)', ''),
+              ('claude-stock', 'the official Claude Code', 'stock'),
+              ('dazzle-claude', 'the current patched build', 'patched'))
+
+
+def _remove_stale(path: Path, why: str):
+    if path.is_file() and MARKER in path.read_bytes()[:200]:
+        path.unlink()
+        print(f'removed {path} ({why})')
+
+
 def _write_shims(folder: Path, posix_too: bool = True):
     python = sys.executable
     if sys.platform == 'win32':
         kinds = [('claude.cmd', 'claude.cmd.in', folder)] + \
                 ([('claude', 'claude.sh.in', posix_shim_dir())] if posix_too else [])
-        for old in ('claude', 'claude-stock'):           # v0.1.10 put the sh shims beside the .cmd ones
-            stale = folder / old
-            if stale.is_file() and MARKER in stale.read_bytes()[:200]:
-                stale.unlink()
-                print(f'removed {stale} (the sh shims now live in {posix_shim_dir()})')
+        for stem, _, _ in SHIM_STEMS:                    # v0.1.10 put the sh shims beside the .cmd ones
+            _remove_stale(folder / stem, f'the sh shims now live in {posix_shim_dir()}')
     else:
         kinds = [('claude', 'claude.sh.in', folder)]
     for name, template, where in kinds:
@@ -356,8 +366,7 @@ def _write_shims(folder: Path, posix_too: bool = True):
         text = (SHIMS / template).read_text(encoding='ascii')
         posix = template.endswith('.sh.in')
         exe = python.replace('\\', '/') if posix else python
-        for stem, what, setmode in (('claude', 'the current build (dcc-patcher use)', ''),
-                                    ('claude-stock', 'the official Claude Code', 'stock')):
+        for stem, what, setmode in SHIM_STEMS:
             body = (text.replace('@@python@@', exe).replace('@@what@@', what)
                     .replace('@@mode@@', setmode))
             if not setmode:
@@ -459,7 +468,8 @@ def main(argv=None):
     p.set_defaults(func=cmd_use)
     p = sub.add_parser('rollback', help='pin the build before the current one')
     p.set_defaults(func=cmd_rollback)
-    p = sub.add_parser('install-shim', help='write the claude and claude-stock launchers and put them on PATH')
+    p = sub.add_parser('install-shim', help='write the claude, claude-stock and dazzle-claude launchers and put '
+                                            'them on PATH')
     p.add_argument('--dir', help='where to write them (default: <builds folder>/bin)')
     p.add_argument('--yes', action='store_true', help='change PATH without asking (also: DCC_YES=1)')
     p.add_argument('--no-path', action='store_true', help='write the launchers only; leave PATH alone')

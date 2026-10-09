@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-09
+
+### Added
+
+- **Switching what `claude` means, in the shell you're in.** `dcc-env stock`, `dcc-env patched`, `dcc-env <build file name>` and `dcc-env default` set (or clear) the choice for that shell, on top of `dcc-patcher use`, which sets it everywhere from the next start. In Git Bash: `. dcc-env stock`. A build's file name pins that build, as `use <build>` does.
+- **`dazzle-claude`**, a shim that always runs the current patched build, beside `claude-stock`, which always runs the official one, whatever `claude` means.
+- **`status` says which choice wins and why**: `runs stock (this shell: dcc-env stock; persistent: patched)`, also on the `--brief` line `dcc-env` prints. A `DCC_MODE` value that is neither `stock`, `patched` nor a build is named and ignored.
+- **`status` flags a cmd or PowerShell that inherited `~/bin` ahead of the shims** (a shell opened from Git Bash does). PowerShell then resolves `claude-stock` to the extensionless sh script and hands it to Windows, which asks how to open the file. The fix is `dcc-env`, which puts the shims first in that shell.
+
+### Changed
+
+- **An existing install gains `dazzle-claude` on its next `dcc-env`**: a layout without it counts as not set up, so `install-shim --if-needed` writes the three shims (the existing two rewritten in place; a file by one of those names that isn't ours is left alone, as before).
+
 ## [0.2.0] - 2026-10-09
 
 The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It carries everything from v0.1.5 to v0.1.11 (versioned builds, the launcher, `dcc-env`, `status`, PATH backups, kept originals, history across session files, the plugin signal, the bundled patches) on top of the tool and the history patch. No code changed since v0.1.11.
@@ -174,7 +187,8 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/DazzleML/dazzle-claude-code-patcher/releases/tag/v0.2.0
 [0.1.11]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/e0aa8ec305c8d8fc29f1bc5314a0655818265c42
 [0.1.10]: https://github.com/DazzleML/dazzle-claude-code-patcher/commit/40423e590306a4b3481a45a5c11ddaeba7cd3a23

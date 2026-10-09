@@ -68,9 +68,19 @@ dcc-env                         # cmd or PowerShell; in Git Bash: . dcc-env
 dcc-patcher status              # which claude this shell runs, and anything left to do
 ```
 
-`dcc-env` exists because no program can change the `PATH` of the shell that started it: it's a small script that runs inside your shell, so it works in one that was already open. The first time, it writes `claude` and `claude-stock` shims and adds their folder to your user `PATH` (after asking, and after saving the old value as a `.reg` file). Every time, it puts that folder on the `PATH` of the shell you typed it in. Shells opened afterwards don't need it.
+`dcc-env` exists because no program can change the `PATH` of the shell that started it: it's a small script that runs inside your shell, so it works in one that was already open. The first time, it writes the `claude`, `dazzle-claude` and `claude-stock` shims and adds their folder to your user `PATH` (after asking, and after saving the old value as a `.reg` file). Every time, it puts that folder on the `PATH` of the shell you typed it in. Shells opened afterwards don't need it.
 
-From then on, `claude` runs the current patched build. When Claude Code updates, the next start says so, rebuilds in a few seconds, and runs the new build; if a patch no longer applies, it runs stock instead and says which patch needs attention. `claude-stock` always runs the official build; `dcc-patcher use stock` makes `claude` do the same; `dcc-patcher uninstall-shim` puts everything back. The details, including how to check or undo any of it by hand: [docs/launcher.md](https://github.com/DazzleML/dazzle-claude-code-patcher/blob/main/docs/launcher.md).
+From then on, `claude` runs the current patched build. When Claude Code updates, the next start says so, rebuilds in a few seconds, and runs the new build; if a patch no longer applies, it runs stock instead and says which patch needs attention.
+
+**Switching.** `dazzle-claude` and `claude-stock` always run the patched and the official build, whatever `claude` means. To change what `claude` itself means:
+
+```bash
+dcc-env stock                   # in this shell only (also: patched, a build's file name, or default to undo)
+dcc-patcher use stock           # everywhere, from the next start (also: patched, a build's file name)
+dcc-patcher status              # says which one wins in this shell, and why
+```
+
+`dcc-patcher uninstall-shim` puts everything back. The details, including how to check or undo any of it by hand: [docs/launcher.md](https://github.com/DazzleML/dazzle-claude-code-patcher/blob/main/docs/launcher.md).
 
 ## How it works
 

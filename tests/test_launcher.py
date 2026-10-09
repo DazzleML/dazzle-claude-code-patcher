@@ -258,18 +258,52 @@ def test_install_shim_writes_four_launchers_from_two_templates(world, tmp_path, 
     sh_folder = home / 'bin' if os.name == 'nt' else folder
     assert cli.main(['install-shim', '--dir', str(folder), '--no-path']) == 0
     if os.name == 'nt':
-        assert sorted(p.name for p in folder.iterdir()) == ['claude-stock.cmd', 'claude.cmd']
-        for name in ('claude.cmd', 'claude-stock.cmd'):
+        assert sorted(p.name for p in folder.iterdir()) == ['claude-stock.cmd', 'claude.cmd', 'dazzle-claude.cmd']
+        for name in ('claude.cmd', 'claude-stock.cmd', 'dazzle-claude.cmd'):
             raw = (folder / name).read_bytes()
             assert b'\r\n' in raw and b'" -P -m dcc_patcher.launch %*' in raw   # -P: the cwd never shadows modules
         assert b'DCC_MODE=stock' in (folder / 'claude-stock.cmd').read_bytes()
+        assert b'DCC_MODE=patched' in (folder / 'dazzle-claude.cmd').read_bytes()
         assert b'DCC_MODE' not in (folder / 'claude.cmd').read_bytes()
-    for name in ('claude', 'claude-stock'):
+    for name in ('claude', 'claude-stock', 'dazzle-claude'):
         raw = (sh_folder / name).read_bytes()
         assert raw.startswith(b'#!/bin/sh\n') and b'\r' not in raw and b'" -P -m dcc_patcher.launch "$@"' in raw
         assert b'\\' not in raw                              # Git Bash wants forward slashes
     assert b'DCC_MODE=stock' in (sh_folder / 'claude-stock').read_bytes()
+    assert b'DCC_MODE=patched' in (sh_folder / 'dazzle-claude').read_bytes()
     assert b'DCC_MODE' not in (sh_folder / 'claude').read_bytes()
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='the Windows layout')
+def test_an_existing_install_gains_dazzle_claude_and_keeps_its_other_shims(world, tmp_path, capsys):
+    # v0.1.6 to v0.2.0 wrote claude and claude-stock; v0.2.1 adds dazzle-claude (the switch) and
+    # rewrites the other two in place
+    official, _, home = world
+    folder = tmp_path / 'bin'
+    folder.mkdir()
+    ours = b'@echo off\r\nrem Written by dcc-patcher install-shim: runs the official Claude Code.\r\n'
+    (folder / 'claude.cmd').write_bytes(ours)
+    (folder / 'claude-stock.cmd').write_bytes(ours)
+    assert cli.main(['install-shim', '--dir', str(folder), '--no-path']) == 0
+    assert sorted(p.name for p in folder.iterdir()) == ['claude-stock.cmd', 'claude.cmd', 'dazzle-claude.cmd']
+    assert (folder / 'claude-stock.cmd').read_bytes() != ours            # rewritten from the template
+    assert b'DCC_MODE=patched' in (folder / 'dazzle-claude.cmd').read_bytes()
+    assert capsys.readouterr().out.count('wrote ') == 6                  # three .cmd, three sh
+
+
+def test_dcc_mode_may_name_a_build_for_one_shell(world, launched, monkeypatch, capsys):
+    # the switch: `dcc-env <build>` sets DCC_MODE to a build file name, as `use <build>` pins one
+    official, builds_dir, _ = world
+    start()                                                   # builds the first copy
+    first = launched[-1][0]
+    capsys.readouterr()
+    monkeypatch.setenv('DCC_MODE', Path(first).name)
+    official.write_bytes(official.read_bytes() + b'\0')       # Claude Code "updated"
+    start()
+    assert launched[-1][0] == first and 'building' not in capsys.readouterr().err
+    monkeypatch.setenv('DCC_MODE', 'patched')
+    start()
+    assert 'Claude Code updated; building' in capsys.readouterr().err   # patched follows the update
 
 
 @pytest.mark.skipif(os.name != 'nt', reason='the Windows layout')
@@ -280,10 +314,12 @@ def test_reinstalling_moves_the_old_sh_shims_off_the_windows_path_and_spares_fil
     folder.mkdir()
     (folder / 'claude').write_bytes(b'#!/bin/sh\n# Written by dcc-patcher install-shim: runs x.\n')
     (home / 'bin').mkdir()
-    (home / 'bin' / 'claude-stock').write_bytes(b'#!/bin/sh\n# the user\'s own script\n')
+    (home / 'bin' / 'claude-stock').write_bytes(b'#!/bin/sh\n# the user\'s own script\n')      # an old name, not ours
+    (home / 'bin' / 'dazzle-claude').write_bytes(b'#!/bin/sh\n# the user\'s own wrapper\n')    # a name we write, not ours
     assert cli.main(['install-shim', '--dir', str(folder), '--no-path']) == 0
     assert not (folder / 'claude').exists()
     assert (home / 'bin' / 'claude-stock').read_bytes() == b'#!/bin/sh\n# the user\'s own script\n'
+    assert (home / 'bin' / 'dazzle-claude').read_bytes() == b'#!/bin/sh\n# the user\'s own wrapper\n'
     assert "isn't one of ours; left it alone" in capsys.readouterr().err
 
 

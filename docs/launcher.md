@@ -21,7 +21,7 @@ What lives there:
 | `claude-dcc.exe` | a hardlink to the newest build. If it's running, `apply` keeps the new build, says the link still points at the old one, and exits 1 |
 | `claude-cc-<claude version>.exe` | the original Claude Code the build was made from, kept for re-testing a patch or diffing a build against its source. The updater's own `claude.exe.old.*` backups are kept too, since it deletes them over time. `dcc-patcher archive` keeps any not kept yet (about 250 MB each). `originals.json` is the index |
 | `launcher.json` | the launcher's state: which build `claude` runs (see *Choosing what runs*) |
-| `bin\claude.cmd`, `bin\claude-stock.cmd` | the shims for cmd and PowerShell |
+| `bin\claude.cmd`, `bin\dazzle-claude.cmd`, `bin\claude-stock.cmd` | the shims for cmd and PowerShell |
 | `path.json`, `path-log.jsonl` | the `PATH` values first seen, and every change made since |
 | `backups\*.reg` | a copy of `Path` taken before each change |
 
@@ -35,7 +35,7 @@ pip installs the three scripts beside `dcc-patcher.exe` (on Windows, the Python 
 
 ### `install-shim`, step by step
 
-1. Writes `claude.cmd` and `claude-stock.cmd` to `<builds>\bin\`, and `claude` and `claude-stock` (sh) to `~/bin`. Git for Windows puts `~/bin` first on Git Bash's `PATH`, and Windows never searches it, so no Windows tool can pick an sh script by mistake. If `~/bin` doesn't exist, it's created and that fact recorded, so `uninstall-shim` can remove it again. A file in `~/bin` that `install-shim` didn't write is never overwritten.
+1. Writes `claude.cmd`, `dazzle-claude.cmd` and `claude-stock.cmd` to `<builds>\bin\`, and `claude`, `dazzle-claude` and `claude-stock` (sh) to `~/bin`. (`dazzle-claude` is new in v0.2.1; an older install gets it on its next `dcc-env`.) Git for Windows puts `~/bin` first on Git Bash's `PATH`, and Windows never searches it, so no Windows tool can pick an sh script by mistake. If `~/bin` doesn't exist, it's created and that fact recorded, so `uninstall-shim` can remove it again. A file in `~/bin` that `install-shim` didn't write is never overwritten.
 2. Asks before changing `PATH` (`--yes` skips the question; `--no-path` leaves `PATH` alone; `DCC_YES=1` is `--yes` for scripts).
 3. Saves the current user `Path` to `backups\` (see below).
 4. Adds one entry to the user `PATH`: `<builds>\bin`, just before `%USERPROFILE%\.local\bin`. That folder stays on `PATH` because Claude Code's updater checks for it. Nothing else changes: the value keeps its registry type (`REG_SZ` or `REG_EXPAND_SZ`), `%VAR%` entries stay unexpanded, and the value is read back to confirm. Then it broadcasts the change, which is what new shells and Windows Terminal tabs pick up.
@@ -74,7 +74,23 @@ reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v
 | `dcc-patcher rollback` | the build before the current one, pinned |
 | `dcc-patcher use` | shows the current state |
 
-`claude-stock` always runs the official build. `DCC_MODE=stock` or `DCC_MODE=patched` overrides the choice for one shell.
+### Switching, in the shell you're in
+
+`dazzle-claude` always runs the current patched build and `claude-stock` the official one, whatever `claude` means. `use` changes what `claude` means everywhere, from the next start. For one shell:
+
+```
+dcc-env stock                     # claude runs the official build in THIS shell (cmd, PowerShell; Git Bash: . dcc-env stock)
+dcc-env patched                   # the current patched build
+dcc-env claude-dcc-2.1.290+dcc0.1.9.exe   # that build, pinned, in this shell
+dcc-env default                   # back to the persistent choice
+```
+
+Under the hood each one sets or clears `DCC_MODE` in the shell (`set DCC_MODE=stock`, `$env:DCC_MODE = 'stock'`, `export DCC_MODE=stock` do the same by hand). The launcher reads it at every start, ahead of the persistent choice; a value that is neither `stock`, `patched` nor a build's file name is named and ignored. A new window starts from the persistent choice again. `dcc-patcher status` (and the `--brief` line `dcc-env` prints) says which one wins and why:
+
+```
+  [x] claude -> C:\...\builds\bin\claude.cmd
+                (the dcc-patcher shim; runs stock (this shell: dcc-env stock; persistent: patched))
+```
 
 At each start the launcher compares the official `claude.exe` with what the current build was made from. When Claude Code has updated, it says so (`dcc: Claude Code updated; building the patched copy...`), rebuilds in a few seconds, keeps the original, and runs the new build. If a patch no longer applies, it runs stock instead, with one line naming what needs attention and the `check` command to run.
 
@@ -111,7 +127,7 @@ The builds folder stays (builds, originals, backups, the `.cmd` shims), so a lat
 **By hand**, if the tool isn't available:
 
 1. `reg import` the newest `backups\*path-user*.reg` (and the newest `*path-system*.reg`, elevated, if one exists), or edit `Path` in *System Properties > Environment Variables* and remove the `<builds>\bin` entry.
-2. Delete `<builds>\bin\`, `~/bin/claude` and `~/bin/claude-stock` (only the ones with the `Written by dcc-patcher install-shim` line), and `%ProgramFiles%\dazzle-claude-code-patcher\` if it exists.
+2. Delete `<builds>\bin\`, and `~/bin/claude`, `~/bin/dazzle-claude`, `~/bin/claude-stock` (only the ones with the `Written by dcc-patcher install-shim` line), and `%ProgramFiles%\dazzle-claude-code-patcher\` if it exists.
 3. Open a new shell and run `where claude`: only `%USERPROFILE%\.local\bin\claude.exe` should be left.
 
 The official `claude.exe` is never modified by any of this, so there is nothing to restore there.

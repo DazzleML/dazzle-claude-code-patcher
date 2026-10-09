@@ -35,6 +35,14 @@ from pathlib import Path
 from . import builds
 
 MODES = ('stock', 'patched')
+
+
+def valid_mode(value: str) -> bool:
+    """stock, patched, or the file name of a build in the builds folder (a pinned build):
+    what `dcc-patcher use` accepts, and what DCC_MODE may hold for one shell (dcc-env)."""
+    if value in MODES:
+        return True
+    return Path(value).name == value and (builds.builds_dir() / value).is_file()   # a bare file name, never a path
 STATE = 'launcher.json'
 
 
@@ -105,10 +113,10 @@ def choose(env=None) -> tuple[str, str | None]:
     official = st['official']
     mode, note = st['mode'], None
     if env.get('DCC_MODE'):
-        if env['DCC_MODE'] in MODES:
+        if valid_mode(env['DCC_MODE']):
             mode = env['DCC_MODE']
         else:
-            note = f'dcc: DCC_MODE={env["DCC_MODE"]} is not stock or patched; using "{mode}"'
+            note = f'dcc: DCC_MODE={env["DCC_MODE"]} is not stock, patched or a build; using "{mode}"'
     if mode == 'stock':
         return official, note
     if mode != 'patched':                                   # a pinned build
