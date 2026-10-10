@@ -474,6 +474,12 @@ def status(brief: bool = False) -> int:
             item('!', f'claude -> {P(w)}', note='neither the shim nor the official Claude Code')
         if brief:
             print(lines[-1])
+            up = _updates()                     # dcc-env's line: one more row only when something is stale
+            if up and up['pending']:
+                from .selfupdate import fix_hint
+                lines.clear()
+                item('!', up['pending'][0], fix_hint())
+                print(lines[-1])
             return 1 if bad else 0
         for p in found:
             detail(f'        {"*" if p == w else " "} {P(p)}')
@@ -543,6 +549,15 @@ def status(brief: bool = False) -> int:
              'dcc-patcher archive')
     else:
         item('x', f'{len(idx["kept"])} kept in {P(builds.builds_dir())}')
+    up = _updates()
+    if up:
+        from . import selfupdate
+        heading('Updates')
+        if up['pending']:
+            for i, p in enumerate(up['pending'], 1):          # one fix covers them all: show it once
+                item('!', p, selfupdate.fix_hint() if i == len(up['pending']) else None)
+        else:
+            item('x', selfupdate.summary(up), note='dcc-env copies current; PyPI: dcc-patcher update')
     saved = backups()
     if saved or rec.get('base_path_user'):
         heading('Backups')
@@ -554,6 +569,16 @@ def status(brief: bool = False) -> int:
             detail(f'      PATH as first seen recorded {base["at"]} ({RECORDS})')
     print('\n'.join(lines))
     return 1 if bad else 0
+
+
+def _updates() -> dict | None:
+    """The offline update check for status, or None when it can't be made (status
+    must never fail on it)."""
+    from . import selfupdate
+    try:
+        return selfupdate.state()
+    except Exception:                           # noqa: BLE001 -- a broken pip record: leave the row out
+        return None
 
 
 def _runs(st: dict, mark=str) -> str:

@@ -35,11 +35,13 @@ Some Claude Code bugs sit in code you can't configure around. For example, after
 
 ## Installation
 
-Python 3.11 or newer, and nothing else.
+Python 3.11 or newer. The one dependency, [dazzle-lib](https://pypi.org/project/dazzle-lib/), is itself standard-library only.
 
 ```bash
 pip install dazzle-claude-code-patcher
+dcc-patcher -h                   # the commands, grouped by what they act on
 dcc-patcher validate             # lists the bundled patches
+dcc-patcher update               # is this install current? (--fix updates it, after asking)
 ```
 
 To work on it, install from source instead (`pip install -e ".[dev]"` in a clone). Builds then go to the checkout's `private\builds\` rather than `%LOCALAPPDATA%\dazzle-claude-code-patcher\builds\`.
@@ -77,6 +79,7 @@ From then on, `claude` runs the current patched build. When Claude Code updates,
 
 ```bash
 dcc-env stock                   # in this shell only (also: patched, a build's file name, or default to undo)
+dcc-env --help                  # the choices, without changing anything
 dcc-patcher use stock           # everywhere, from the next start (also: patched, a build's file name)
 dcc-patcher status              # says which one wins in this shell, and why
 ```

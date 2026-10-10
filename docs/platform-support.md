@@ -9,4 +9,4 @@
 | macOS | Mach-O | Planned |
 | Windows / Linux arm64 | PE / ELF | Untested |
 
-The tool itself is Python 3.11+ with the standard library only.
+The tool itself is Python 3.11+ with one dependency, [dazzle-lib](https://pypi.org/project/dazzle-lib/), which is itself standard-library only. It is loaded only to draw `dcc-patcher -h`; the `claude` launcher and patching use the standard library alone, and the help falls back to argparse's own layout if dazzle-lib is missing.

@@ -17,6 +17,11 @@ def no_real_path(monkeypatch):
     monkeypatch.setattr(winpath, 'is_elevated', lambda: False)
     from dcc_patcher import install
     monkeypatch.setattr(install, 'ps_scripts_allowed', lambda: False)   # not this machine's policy
+    # update/status (v0.2.4): no test reaches PyPI, and none reads this machine's pip record
+    # (a test that wants an install supplies a fake distribution)
+    from dcc_patcher import selfupdate
+    monkeypatch.setattr(selfupdate, 'pypi_latest', lambda *a, **k: (None, 'no network in tests'))
+    monkeypatch.setattr(selfupdate, '_dist', lambda: None)
 
 
 @pytest.fixture

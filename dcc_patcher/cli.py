@@ -435,13 +435,24 @@ def cmd_inspect(args) -> int:
     return 0
 
 
-def main(argv=None):
+def cmd_update(args) -> int:
+    from . import selfupdate
+    return selfupdate.update(fix=args.fix, yes=args.yes or os.environ.get('DCC_YES') == '1',
+                             dry_run=args.dry_run, offline=args.offline, as_json=args.json)
+
+
+def verbs_of(parser: argparse.ArgumentParser) -> dict:
+    from .verbs import command_help
+    return command_help(parser)
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='dcc-patcher',
         description='Apply, verify and diagnose patches to the native Claude Code CLI.',
     )
-    parser.add_argument('--version', action='version', version=f'dcc-patcher {DISPLAY_VERSION}')
-    sub = parser.add_subparsers(dest='command')
+    parser.add_argument('-V', '--version', action='version', version=f'dcc-patcher {DISPLAY_VERSION}')
+    sub = parser.add_subparsers(dest='command', metavar='<command>')
     p = sub.add_parser('inspect', help='show what is inside a Claude Code executable')
     p.add_argument('file')
     p.add_argument('--marker', help='list the modules whose source contains this string')
@@ -463,7 +474,7 @@ def main(argv=None):
     p.add_argument('--debug', action='store_true', help='also apply each patch\'s debug prelude and debug-only edits')
     p.set_defaults(func=cmd_apply)
     p = sub.add_parser('use', help='choose what the claude shim runs: stock, patched (the newest build, '
-                       'rebuilt on update) or one build; no argument shows the state')
+                       'rebuilt when Claude Code or dcc-patcher changes) or one build; no argument shows the state')
     p.add_argument('what', nargs='?', help='stock | patched | a build\'s file name')
     p.set_defaults(func=cmd_use)
     p = sub.add_parser('rollback', help='pin the build before the current one')
@@ -481,6 +492,14 @@ def main(argv=None):
                        'and the kept originals are in order')
     p.add_argument('--brief', action='store_true', help='only the line saying which claude this shell runs')
     p.set_defaults(func=cmd_status)
+    p = sub.add_parser('update', help='is this install current (dcc-patcher, its dcc-env scripts, PyPI)? '
+                       '--fix runs pip after asking')
+    p.add_argument('--fix', action='store_true', help='run the pip command that brings it current, after asking')
+    p.add_argument('--yes', action='store_true', help='with --fix: don\'t ask (also: DCC_YES=1); needed without a terminal')
+    p.add_argument('--dry-run', action='store_true', help='with --fix: show the command, run nothing')
+    p.add_argument('--offline', action='store_true', help='don\'t ask PyPI')
+    p.add_argument('--json', action='store_true', help='the state as JSON')
+    p.set_defaults(func=cmd_update)
     p = sub.add_parser('shellenv', help='print the line that puts the launchers on PATH in this shell '
                        '(or run dcc-env, which does it for you)')
     p.add_argument('shell', nargs='?', choices=('cmd', 'powershell', 'sh'), help='default: detected')
@@ -495,6 +514,16 @@ def main(argv=None):
                        '(including the updater\'s .old copies) in the builds folder')
     p.add_argument('official', nargs='?', help='the official executable (default: the launcher\'s)')
     p.set_defaults(func=cmd_archive)
+    from .verbs import install_grouped_help
+    install_grouped_help(parser)
+    return parser
+
+
+def main(argv=None):
+    parser = build_parser()
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if len(argv) >= 2 and argv[0] in ('-h', '--help') and argv[1] in verbs_of(parser):
+        argv = [argv[1], '-h']                  # `dcc-patcher -h status` means status's help
     args = parser.parse_args(argv)
     if not getattr(args, 'func', None):
         parser.print_help(sys.stderr)

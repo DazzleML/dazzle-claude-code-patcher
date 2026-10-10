@@ -2,13 +2,54 @@
 # Source it: `. dcc-env` (run as a plain command it would only change a child shell).
 #   . dcc-env stock | patched | <build file name>   also choose what `claude` runs in THIS shell
 #   . dcc-env default                               go back to the persistent choice (dcc-patcher use)
-# pip installs it beside dcc-patcher.
-if DCC_ENV=1 dcc-patcher install-shim --if-needed; then
-  _dcc_folder="$(dcc-patcher shellenv sh --folder)"
-  [ -n "$_dcc_folder" ] && export PATH="$_dcc_folder:$PATH"
-  unset _dcc_folder
-  if [ -n "$1" ]; then
-    if [ "$1" = "default" ]; then unset DCC_MODE; else export DCC_MODE="$1"; fi
+#   . dcc-env -h | --help                           say all this, change nothing
+#   . dcc-env -V | --version                        this script's version and dcc-patcher's
+# pip installs it beside dcc-patcher. Sourced, so no `exit` here: it would close the shell.
+case "$1" in
+-h|--help)
+  cat <<'EOF'
+usage: . dcc-env [stock | patched | <build file name> | default]
+
+Puts the dcc-patcher launchers on PATH in this shell (setting them up first
+if needed), then says what `claude` runs here. Source it (the leading ". "):
+run as a plain command it would only change a child shell.
+
+  . dcc-env                    set up or repair this shell; keep the current choice
+  . dcc-env stock              `claude` runs the official Claude Code in this shell
+  . dcc-env patched            `claude` runs the current patched build in this shell
+  . dcc-env <build file name>  `claude` runs that saved build in this shell
+  . dcc-env default            back to the persistent choice
+  . dcc-env -h, --help         this help
+  . dcc-env -V, --version      this script's version and dcc-patcher's
+
+A choice made here lasts until the shell closes. For every shell, from the
+next start: dcc-patcher use stock|patched|<build>. Which one wins, and the
+builds folder: dcc-patcher status.
+EOF
+  ;;
+-V|--version)
+  ( # a subshell: this file is sourced, and -V must leave no variables behind
+    DCC_ENV_V=0.2.4
+    echo "dcc-env $DCC_ENV_V"
+    p="$(dcc-patcher -V 2>/dev/null)"; p="${p#dcc-patcher }"
+    if [ -z "$p" ]; then echo "dcc-patcher: not found on PATH"; exit 1; fi
+    echo "dcc-patcher $p"
+    [ "$p" = "$DCC_ENV_V" ] || echo "these differ: dcc-patcher update --fix brings them in step"
+  )
+  ;;
+-*)
+  echo "dcc-env: unknown option $1 (. dcc-env --help lists the choices)" >&2
+  (exit 2)
+  ;;
+*)
+  if DCC_ENV=1 dcc-patcher install-shim --if-needed; then
+    _dcc_folder="$(dcc-patcher shellenv sh --folder)"
+    [ -n "$_dcc_folder" ] && export PATH="$_dcc_folder:$PATH"
+    unset _dcc_folder
+    if [ -n "$1" ]; then
+      if [ "$1" = "default" ]; then unset DCC_MODE; else export DCC_MODE="$1"; fi
+    fi
+    dcc-patcher status --brief
   fi
-  dcc-patcher status --brief
-fi
+  ;;
+esac

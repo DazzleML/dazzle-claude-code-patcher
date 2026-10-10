@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-10-09
+
+### Added
+
+- **`dcc-patcher update`** says whether this install is current: the dcc-patcher that runs, how it was installed, whether the `dcc-env` scripts pip copied are this version's, and the latest release on PyPI (`--offline` skips PyPI). **`update --fix`** shows the one pip command that brings it current and runs it only after you say yes (a bare Enter is no; `--yes` when there's no terminal; `--dry-run` shows it and runs nothing), then checks what is actually installed rather than trusting pip's exit code. On Windows run it as `python -m dcc_patcher update --fix` (the command `status` and `update` print): pip can't reliably replace `dcc-patcher.exe` while it is running, and can stop halfway with dcc-patcher uninstalled, so `dcc-patcher update --fix` refuses and names that command instead.
+- **`dcc-patcher -h <command>`** shows that command's help (the same as `dcc-patcher <command> -h`).
+- **An Updates group in `dcc-patcher status`**, from the same check, without going online. The line `dcc-env` prints gains a second row only when something is out of date, with the fix. An editable install's `dcc-env` copies that pip left behind are now named instead of silently running old code.
+- **`dcc-patcher -h` groups the commands by what they act on**: patches (read-only), builds, and this machine. Every command and option works as before.
+- **`dcc-patcher -V`**, short for `--version`.
+- **`dcc-env -V` and `dcc-env --version`** print the script's version and dcc-patcher's, and say when they differ.
+- **`dcc-env -h` and `dcc-env --help`** (and `dcc-env /?` in cmd) list the choices (`stock`, `patched`, a build's file name, `default`) and what each does, then stop: no setup, no `PATH` change, no change to what `claude` runs.
+
+### Changed
+
+- **One dependency: [dazzle-lib](https://pypi.org/project/dazzle-lib/)**, itself standard-library only. It draws the paired commands in `dcc-patcher -h` and is loaded for nothing else: the `claude` launcher and patching still use the standard library alone, and the help falls back to the plain layout if dazzle-lib is missing.
+- `use`'s help now says the patched build is rebuilt "when Claude Code or dcc-patcher changes" (it said "on update", which read as `dcc-patcher update`).
+
+### Fixed
+
+- **`dcc-env` refuses an unknown option** instead of taking it as the mode. Before, `dcc-env --help` or `dcc-env --stock` set `DCC_MODE` to that word, which the launcher then named and ignored. It now prints `dcc-env: unknown option ...`, points at `--help`, and changes nothing.
+
 ## [0.2.3] - 2026-10-09
 
 ### Added
@@ -200,7 +221,8 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.0...v0.2.1

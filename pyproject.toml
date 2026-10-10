@@ -28,9 +28,13 @@ classifiers = [
     "Topic :: Utilities",
 ]
 
-# Standard library only: the patcher must run anywhere Python does, with nothing
-# to install beyond itself.
-dependencies = []
+# One dependency, itself standard-library only: dazzle-lib, the DazzleLib bedrock
+# (its Groupable draws the paired commands in `dcc-patcher -h`). It is loaded only to
+# draw that help: the `claude` launcher and every patching path stay standard library
+# only, and the help falls back to argparse's own layout when dazzle-lib is missing.
+dependencies = [
+    "dazzle-lib>=0.8.2,<1",
+]
 
 [project.optional-dependencies]
 dev = [

@@ -83,6 +83,8 @@ dcc-env stock                     # claude runs the official build in THIS shell
 dcc-env patched                   # the current patched build
 dcc-env claude-dcc-2.1.290+dcc0.1.9.exe   # that build, pinned, in this shell
 dcc-env default                   # back to the persistent choice
+dcc-env --help                    # these choices (also -h; /? in cmd); changes nothing
+dcc-env -V                        # this script's version and dcc-patcher's
 ```
 
 Under the hood each one sets or clears `DCC_MODE` in the shell (`set DCC_MODE=stock`, `$env:DCC_MODE = 'stock'`, `export DCC_MODE=stock` do the same by hand). The launcher reads it at every start, ahead of the persistent choice; a value that is neither `stock`, `patched` nor a build's file name is named and ignored. A new window starts from the persistent choice again. `dcc-patcher status` (and the `--brief` line `dcc-env` prints) says which one wins and why:
@@ -112,7 +114,23 @@ It holds `Path` only, never your other variables, in the same format `reg export
 
 ## `status`
 
-`dcc-patcher status` shows, in groups: which `claude` this shell runs and whether it's the patched build; the user and system `PATH` entries and anything out of order; the launcher's state and current build; the originals kept; and the backups. Each row has a mark (done, pending, a problem) and the command that fixes it. It exits 1 while anything is left to do, so a script can test it. `status --brief` is the short form `dcc-env` prints. Colour is on for a terminal and off for pipes and `NO_COLOR`.
+`dcc-patcher status` shows, in groups: which `claude` this shell runs and whether it's the patched build; the user and system `PATH` entries and anything out of order; the launcher's state and current build; the originals kept; and the backups. Each row has a mark (done, pending, a problem) and the command that fixes it. It exits 1 while anything is left to do, so a script can test it. `status --brief` is the short form `dcc-env` prints; it adds a second line only when an update is waiting (below). Colour is on for a terminal and off for pipes and `NO_COLOR`.
+
+The **Updates** group says whether this install is current, without going online: the dcc-patcher that runs, how it was installed, and whether the `dcc-env` scripts pip copied into Python's `Scripts` folder match it. A normal `pip install --upgrade` replaces them together, but an editable install (`pip install -e <clone>`) copies them only when pip last ran, so they fall behind as the clone moves on.
+
+## Updating dcc-patcher
+
+```
+dcc-patcher update                # is this install current? asks PyPI for the latest release
+dcc-patcher update --offline      # the same, without PyPI
+python -m dcc_patcher update --fix    # run the one pip command that brings it current, after asking
+dcc-patcher update --fix --dry-run    # show that command, run nothing
+dcc-env -V                        # the dcc-env script's version and dcc-patcher's (they should match)
+```
+
+`--fix` shows the command and asks first; a bare Enter is no. Without a terminal to ask in, it needs `--yes` (or `DCC_YES=1`). For a normal install the command is `python -m pip install --upgrade dazzle-claude-code-patcher`; for an editable one, `python -m pip install -e <clone>`, which also refreshes the `dcc-env` copies. The next `claude` start rebuilds the patched build if the dcc-patcher version changed.
+
+**On Windows, run `--fix` through Python** (`python -m dcc_patcher update --fix`; `status` and `update` print the exact command, with your Python's path). Windows keeps a running program's file locked, and pip has to replace `dcc-patcher.exe`: run from `dcc-patcher.exe` itself, pip can stop halfway and leave dcc-patcher uninstalled, so `dcc-patcher update --fix` refuses and names the command to use instead. Afterwards `update` asks a fresh Python what is installed rather than trusting pip's exit code, and if pip did leave dcc-patcher uninstalled it says so and gives the command that puts it back. Until then `claude`, `claude-stock` and `dazzle-claude` can't start; `%USERPROFILE%\.local\bin\claude.exe` still can.
 
 ## Undoing everything
 
