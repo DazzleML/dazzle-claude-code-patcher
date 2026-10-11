@@ -4,7 +4,7 @@
 
 | Platform | Claude Code binary | Status |
 |---|---|---|
-| Windows x64 | PE (`.bun` section) | **Supported.** Every bundled patch applies unchanged on Claude Code 2.1.278 to 2.1.295; the launcher, `dcc-env` and `status` are in daily use |
+| Windows x64 | PE (`.bun` section) | **Supported.** Every bundled patch applies unchanged on Claude Code 2.1.278 to 2.1.296; the launcher, `dcc-env` and `status` are in daily use |
 | Linux x64 | ELF (`.bun` section) | Planned |
 | macOS | Mach-O | Planned |
 | Windows / Linux arm64 | PE / ELF | Untested |

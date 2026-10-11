@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-10-11
+
+### Fixed
+
+- **A resumed session reaches the history before a compaction whose last messages were still in flight when it ran** (`patches/H-history-past-compaction/`, #1). When Claude Code compacts while messages are still being written, those messages reach the session file after the summary, already linked onto it, so the file never records what came before them. The walk used that missing link, found the summary instead, and stopped at the last compaction: the screen began at `Compact summary`, with thousands of earlier rows loaded and unreachable. The walk now continues from the latest row before the boundary in file order when the recorded links lead nowhere, and a session resumed right after an idle compaction (nothing after the summary) continues from the parent the prune recorded. On this machine 34 of 200 compactions in 31 of 66 session files had the first shape, written by Claude Code 2.1.205 through 2.1.292; it is not tied to one release. What the model receives is unchanged. Applies on 2.1.278 to 2.1.296.
+
 ## [0.2.4] - 2026-10-09
 
 ### Added
@@ -221,7 +227,7 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.5...HEAD
 [0.2.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...v0.2.2

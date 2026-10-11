@@ -34,4 +34,4 @@ Only sessions that point outside their file pay anything. Those pay for reading 
 ## Limits
 
 - Only the same project folder is searched. A conversation continued under a different project folder isn't followed.
-- `check` passes on every saved build, 2.1.278 to 2.1.295. On 2.1.290 the edit lands in the loader that opens files by path. That release read storage-backed sessions through a second function, which isn't patched. Later releases use one function for both.
+- `check` passes on every saved build, 2.1.278 to 2.1.296. On 2.1.290 the edit lands in the loader that opens files by path. That release read storage-backed sessions through a second function, which isn't patched. Later releases use one function for both.

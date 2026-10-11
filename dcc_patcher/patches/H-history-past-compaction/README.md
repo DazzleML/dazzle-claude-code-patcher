@@ -1,6 +1,6 @@
 # Patch H: history past compaction
 
-**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.295 (Windows). In daily use on 2.1.289 to 2.1.295: a real session file of 5,947 messages and 5 compactions resumes to its first record, and the model receives the same request as stock (token parity measured on 2.1.289 and 2.1.290).
+**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.296 (Windows). In daily use on 2.1.289 to 2.1.296: a real session file of 5,947 messages and 5 compactions resumes to its first record, and the model receives the same request as stock (token parity measured on 2.1.289 and 2.1.290). Since v0.2.5 the walk also crosses a compaction whose preserved messages reached disk after the summary (a 7,347-message file with 4 such compactions, simulated on every session file on one machine: 54 of 66 reach their first in-file message; the rest start with a boundary whose history is in another file, patch J's territory).
 **Tracking:** [DazzleML/dazzle-claude-code-patcher#1](https://github.com/DazzleML/dazzle-claude-code-patcher/issues/1). Not yet reported upstream.
 
 ## Symptom
@@ -27,12 +27,15 @@ Six edits (seven sites) plus a small helper inserted at the module's start:
 | prune, 2 | keep the messages before the last compaction instead of deleting them |
 | prune, 3 | don't rewire the kept messages themselves |
 | pre-parse walk (2 sites) | keep lines that are off the newest chain |
-| walker | at a compaction row, continue where the helper says |
+| walker | at a compaction row, continue where the helper says; at a row whose parent is missing or already on the chain, take the parent the prune recorded for it before the walker's own 5-second fallback |
 
 The helper (`__dzCross`) picks where the walk continues past a compaction row:
 1. its `logicalParentUuid`, if that message isn't on the chain yet;
 2. else the last preserved message not yet on the chain (an earlier compaction, whose preserved tail sits after its summary);
-3. else the original parent of the preserved segment's head, which the prune recorded before relinking it (the last compaction).
+3. else the original parent of the preserved segment's head, which the prune recorded before relinking it (the last compaction);
+4. else, when that pick is missing or already on the chain, the latest row before the boundary in file order that isn't on the chain yet, on the same side (`isSidechain`) and of a chain type (`user`, `assistant`, `attachment`, `system`).
+
+**Why rule 4 exists (v0.2.5).** A session file is append-only and deduplicated by uuid, and a compaction can run while a turn's messages are still queued for writing. Those messages reach the file after the boundary and the summary, with their parent links already rewired onto the summary (the compaction's `preservedMessages`). When *all* of a compaction's preserved messages were in flight, the head's original parent is written nowhere: rule 3 finds the summary, which the walk has already visited, and stock's own fallback (the nearest unseen row within 5 seconds) can't bridge the minutes between the boundary and the last row before it. Three shapes occur, and the rules tell them apart by what is already on the chain when the walk arrives: preserved rows in place with only the tail late (rule 2), all preserved rows late (rule 4), and nothing after the summary at all, where the walk reaches the preserved rows from their tail and arrives at the head from the wrong side (the walker's relinked-head fallback, which reads the same record rule 3 does). Measured on one machine on 2026-10-11: 34 of 200 compactions in 31 of 66 session files had the all-late shape, written by Claude Code 2.1.205 through 2.1.292. The one shape the rules can't cross is a file that *opens* with a boundary (a continued session): its history is in another file, which is patch J's job.
 
 **What the model receives is unchanged.** The request sent to the API is cut at the last compaction separately, after this loading code. The proof of concept measured 527,575 tokens patched vs 527,509 stock, and the stock run hit the cache the patched one wrote, so the prefix was identical.
 
