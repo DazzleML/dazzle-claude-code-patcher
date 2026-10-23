@@ -4,7 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.6] - 2026-10-22
+
+### Fixed
+
+- **A patched Claude Code 2.1.308 or 2.1.309 could refuse to start** with `error: An internal error occurred (Corrupted module graph: module contents are out of range)`. The Bun runtime those two releases are compiled with checks, at startup, that a NUL byte follows every module's embedded JavaScript (oven-sh/bun#46021; reverted upstream in oven-sh/bun#46461, which later Claude Code releases may or may not carry). The patcher wrote that NUL only as 8-byte alignment padding, so a replaced module whose new length was a multiple of 8 had none: two of the five edited modules in 2.1.309, none in 2.1.308, which started by luck. Every replacement now ends with a NUL, as Bun's own writer does, and the build's verify step checks for it. The launcher rebuilds on the next start (`dcc: dcc-patcher updated`).
+
+### Changed
+
+- Every patch applies unchanged on Claude Code 2.1.299 to 2.1.309 (`dcc-patcher check` on the saved originals, 2.1.278 to 2.1.309). The launcher rebuilt for each update on its own.
 
 ## [0.2.5] - 2026-10-11
 
@@ -227,7 +235,9 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.5...v0.2.6
+[0.2.5]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.1...v0.2.2

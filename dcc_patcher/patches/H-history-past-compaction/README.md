@@ -1,6 +1,6 @@
 # Patch H: history past compaction
 
-**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.296 (Windows). In daily use on 2.1.289 to 2.1.296: a real session file of 5,947 messages and 5 compactions resumes to its first record, and the model receives the same request as stock (token parity measured on 2.1.289 and 2.1.290). Since v0.2.5 the walk also crosses a compaction whose preserved messages reached disk after the summary (a 7,347-message file with 4 such compactions, simulated on every session file on one machine: 54 of 66 reach their first in-file message; the rest start with a boundary whose history is in another file, patch J's territory).
+**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.309 (Windows). In daily use on 2.1.289 to 2.1.296: a real session file of 5,947 messages and 5 compactions resumes to its first record, and the model receives the same request as stock (token parity measured on 2.1.289 and 2.1.290). Since v0.2.5 the walk also crosses a compaction whose preserved messages reached disk after the summary (a 7,347-message file with 4 such compactions, simulated on every session file on one machine: 54 of 66 reach their first in-file message; the rest start with a boundary whose history is in another file, patch J's territory).
 **Tracking:** [DazzleML/dazzle-claude-code-patcher#1](https://github.com/DazzleML/dazzle-claude-code-patcher/issues/1). Not yet reported upstream.
 
 ## Symptom

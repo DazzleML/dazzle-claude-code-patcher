@@ -11,7 +11,12 @@ Layout (verified against Claude Code 2.1.289, 2026-10-05):
     bytecode;
   - a module whose bytecode length is 0 is compiled from its source at load
     (proved by the proof of concept's t3_fallback test: src+nobc printed the
-    edited string).
+    edited string);
+  - every string a pointer names (name, source, source map) is followed by a NUL
+    that the length does not count. The Bun inside Claude Code 2.1.308 and 2.1.309
+    (oven-sh/bun#46021, reverted upstream in #46461) checks for that NUL at
+    startup and otherwise exits with "Corrupted module graph: module contents are
+    out of range"; the replacement writes it (v0.2.6) and `verify` checks it.
 
 Moved from the proof of concept's bunexe.py (2026-10-05) and adapted to the Container interface: the
 proof of concept's asserts became ContainerError, which survives `python -O`.
@@ -92,7 +97,12 @@ class PeBunExe:
         (any edit invalidates the signature anyway)."""
         old = self.data[self.base:self.base + self.byte_count]
         new_off = len(old)
-        payload = bytearray(old + new_source + b'\0' * ((-len(new_source)) % 8))
+        # Bun writes a NUL after every module's source (append_count_z), and the Bun
+        # that built Claude Code 2.1.308 and 2.1.309 checks for it at startup. Until
+        # v0.2.6 the only NUL here was the alignment padding, absent when the length
+        # was a multiple of 8.
+        terminated = new_source + b'\0'
+        payload = bytearray(old + terminated + b'\0' * ((-len(terminated)) % 8))
         offsets = bytearray(self.data[self.offsets_at:self.offsets_at + OFFSETS_SIZE])
         struct.pack_into('<Q', offsets, 0, len(payload))
         payload += offsets + TRAILER
@@ -123,6 +133,8 @@ class PeBunExe:
         _require(check.count == self.count, f'module count changed: {self.count} -> {check.count}')
         _require(check.source(k) == new_source, f'module {k} does not hold the new source')
         _require(check.module(k)['bytecode'][1] == 0, f'module {k} still has bytecode')
+        o, n = check.module(k)['src']
+        _require(new_image[check.base + o + n] == 0, f'module {k} is not NUL-terminated')
         changed = [j for j in range(self.count)
                    if j != k and (check.module(j) != self.module(j) or check.source(j) != self.source(j))]
         _require(not changed, f'other modules changed: {changed[:5]}')

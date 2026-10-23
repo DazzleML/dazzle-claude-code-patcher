@@ -40,6 +40,36 @@ def test_verify_refuses_an_image_where_another_module_changed(real):
         real.verify(bytes(image), k, new)
 
 
+@needs_real
+@pytest.mark.parametrize('remainder', [0, 1, 7])
+def test_a_replacement_is_nul_terminated_whatever_its_length(real, remainder):
+    """Bun writes a NUL after every module's source, and the Bun that built Claude
+    Code 2.1.308 and 2.1.309 refuses to start without it ("Corrupted module graph:
+    module contents are out of range"). Before v0.2.6 the only NUL after a
+    replacement was its 8-byte alignment padding, so a source whose length was a
+    multiple of 8 had none (2.1.309 build, chunk-ww9em9me, 69,008 bytes)."""
+    (k,) = real.find_module(MARKER)
+    new = real.source(k) + b'\n//dcc'
+    new += b' ' * ((remainder - len(new)) % 8)
+    assert len(new) % 8 == remainder
+    image = real.replace_module_source(k, new)
+    got = open_container(image)
+    o, n = got.module(k)['src']
+    assert image[got.base + o + n] == 0
+
+
+@needs_real
+def test_verify_refuses_an_image_whose_new_source_has_no_terminator(real):
+    (k,) = real.find_module(MARKER)
+    new = real.source(k) + b'\n//dcc'
+    image = bytearray(real.replace_module_source(k, new))
+    got = open_container(bytes(image))
+    o, n = got.module(k)['src']
+    image[got.base + o + n] = 0x01
+    with pytest.raises(ContainerError, match='not NUL-terminated'):
+        real.verify(bytes(image), k, new)
+
+
 def test_a_pe_without_a_bun_section_is_refused_clearly():
     data = bytearray(0x400)
     data[:2] = b'MZ'
