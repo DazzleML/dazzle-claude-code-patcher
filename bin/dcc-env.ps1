@@ -30,7 +30,7 @@ builds folder: dcc-patcher status.
     return
 }
 if ($Mode -ceq '-V' -or $Mode -eq '--version') {
-    $DCC_ENV_V = '0.2.6'
+    $DCC_ENV_V = '0.2.7'
     "dcc-env $DCC_ENV_V"
     $p = (dcc-patcher -V 2>$null) -replace '^dcc-patcher\s+', ''
     if (-not $p) { 'dcc-patcher: not found on PATH'; exit 1 }

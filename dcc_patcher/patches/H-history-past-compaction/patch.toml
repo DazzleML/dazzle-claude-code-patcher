@@ -78,5 +78,8 @@ expect = 2
 name = "walker: cross a compaction boundary; at a relinked head, continue where the prune recorded"
 near = "tengu_chain_parent_cycle"
 window = 1500
-pattern = '(?P<g>[\w$]+)\.add\((?P<h>[\w$]+)\.uuid\),(?P<s>[\w$]+)\.push\((?P=h)\);let (?P<w>[\w$]+)=(?P=h)\.parentUuid;if\(!(?P=w)\)break;let (?P<Dw>[\w$]+)=(?P<em>[\w$]+)\.get\((?P=w)\);if\(!(?P=Dw)\|\|(?P=g)\.has\((?P=Dw)\.uuid\)\)\{if\((?P=Dw)=(?P<fb>[\w$]+)\((?P=em),(?P=h),(?P=g)\),(?P=Dw)\)(?P<tel>[\w$]+)\("tengu_chain_timestamp_fallback",\{\}\)\}'
-replace = '@@g@@.add(@@h@@.uuid),@@s@@.push(@@h@@);let @@w@@=@@h@@.parentUuid;if(!@@w@@)@@w@@=globalThis.__dzCross(@@h@@,@@em@@,@@g@@);if(!@@w@@)break;let @@Dw@@=@@em@@.get(@@w@@);if(!@@Dw@@||@@g@@.has(@@Dw@@.uuid)){let __dzO=globalThis.__dzOrigParent?.[@@h@@.uuid];if(__dzO&&!@@g@@.has(__dzO)&&@@em@@.has(__dzO))@@Dw@@=@@em@@.get(__dzO),globalThis.__dzLog?.(`walk: relinked head ${@@h@@.uuid} -> ${__dzO}`);else if(@@Dw@@=@@fb@@(@@em@@,@@h@@,@@g@@),@@Dw@@)@@tel@@("tengu_chain_timestamp_fallback",{})}'
+# The 5-second fallback took (entries, row, seen) through 2.1.312; from 2.1.314 a
+# per-walk cache object comes first: (cache, entries, row, seen). The argument list
+# is captured whole (@@fbargs@@) and reproduced as written, so both shapes apply.
+pattern = '(?P<g>[\w$]+)\.add\((?P<h>[\w$]+)\.uuid\),(?P<s>[\w$]+)\.push\((?P=h)\);let (?P<w>[\w$]+)=(?P=h)\.parentUuid;if\(!(?P=w)\)break;let (?P<Dw>[\w$]+)=(?P<em>[\w$]+)\.get\((?P=w)\);if\(!(?P=Dw)\|\|(?P=g)\.has\((?P=Dw)\.uuid\)\)\{if\((?P=Dw)=(?P<fb>[\w$]+)\((?P<fbargs>(?:[\w$]+,)?(?P=em),(?P=h),(?P=g))\),(?P=Dw)\)(?P<tel>[\w$]+)\("tengu_chain_timestamp_fallback",\{\}\)\}'
+replace = '@@g@@.add(@@h@@.uuid),@@s@@.push(@@h@@);let @@w@@=@@h@@.parentUuid;if(!@@w@@)@@w@@=globalThis.__dzCross(@@h@@,@@em@@,@@g@@);if(!@@w@@)break;let @@Dw@@=@@em@@.get(@@w@@);if(!@@Dw@@||@@g@@.has(@@Dw@@.uuid)){let __dzO=globalThis.__dzOrigParent?.[@@h@@.uuid];if(__dzO&&!@@g@@.has(__dzO)&&@@em@@.has(__dzO))@@Dw@@=@@em@@.get(__dzO),globalThis.__dzLog?.(`walk: relinked head ${@@h@@.uuid} -> ${__dzO}`);else if(@@Dw@@=@@fb@@(@@fbargs@@),@@Dw@@)@@tel@@("tengu_chain_timestamp_fallback",{})}'

@@ -28,7 +28,7 @@ from dcc_patcher import spec
 
 H = Path(__file__).resolve().parents[1] / 'dcc_patcher' / 'patches' / 'H-history-past-compaction' / 'patch.toml'
 NODE = shutil.which('node')
-NAMES = {'g': 'g', 'h': 'h', 's': 's', 'w': 'w', 'Dw': 'D', 'em': 'e', 'fb': 'fb', 'tel': 'tel'}
+NAMES = {'g': 'g', 'h': 'h', 's': 's', 'w': 'w', 'Dw': 'D', 'em': 'e', 'fb': 'fb', 'fbargs': 'e,h,g', 'tel': 'tel'}
 
 
 def row(uuid, type_, parent, **extra):
