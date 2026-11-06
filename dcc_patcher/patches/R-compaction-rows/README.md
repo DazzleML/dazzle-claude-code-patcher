@@ -1,6 +1,6 @@
 # Patch R: compaction rows in the normal view
 
-**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.314 (Windows). Live check pending.
+**Status:** `dcc-patcher check` passes on Claude Code 2.1.278 to 2.1.319 (Windows). Live check pending.
 **Tracking:** [DazzleML/dazzle-claude-code-patcher#7](https://github.com/DazzleML/dazzle-claude-code-patcher/issues/7).
 
 ## Symptom

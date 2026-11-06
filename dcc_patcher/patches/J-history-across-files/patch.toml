@@ -31,5 +31,11 @@ pattern = 'readdir[^;]{0,200}\.jsonl'
 [[edit]]
 name = "loader: add the sibling files' messages before this file's own"
 # The loader that opens the file by path (2.1.290 had a separate four-argument one).
-pattern = 'async function (?P<fn>[\w$]+)\((?P<f>[\w$]+),(?P<o>[\w$]+)(?P<more>(?:,[\w$]+)*)\)\{let (?P<r>[\w$]+)=(?P<mk>[\w$]+)\((?P=o)\?\.keepAllLeaves\?\?!1\),\{processEntry:(?P<add>[\w$]+),(?P<rest>[^}]*)\}=(?P=r);(?P=r)\.precede\((?P=o)\?\.precedingEntries\?\?\[\]\);'
-replace = 'async function @@fn@@(@@f@@,@@o@@@@more@@){let @@r@@=@@mk@@(@@o@@?.keepAllLeaves??!1),{processEntry:@@add@@,@@rest@@}=@@r@@;@@r@@.precede(@@o@@?.precedingEntries??[]);globalThis.__dzSiblings?.(@@f@@,@@add@@);'
+# Through 2.1.318 its head was: make the entry map from keepAllLeaves, take
+# processEntry out of it, precede() the preceding entries. 2.1.319 declares a local
+# before the map maker's, gives the maker a second argument, and opens a resume-head
+# block (a tail-load trial, switched off on Windows) between the destructure and
+# precede(). @@pre@@, @@mkargs@@ and @@mid@@ carry those three verbatim, empty on
+# the earlier builds, so both shapes apply and neither is rewritten.
+pattern = 'async function (?P<fn>[\w$]+)\((?P<f>[\w$]+),(?P<o>[\w$]+)(?P<more>(?:,[\w$]+)*)\)\{let (?P<pre>(?:[\w$]+=[^,(){};]*,)*)(?P<r>[\w$]+)=(?P<mk>[\w$]+)\((?P=o)\?\.keepAllLeaves\?\?!1(?P<mkargs>(?:,[^()]*)?)\),\{processEntry:(?P<add>[\w$]+),(?P<rest>[^}]*)\}=(?P=r)(?P<mid>.{0,500}?)(?P=r)\.precede\((?P=o)\?\.precedingEntries\?\?\[\]\);'
+replace = 'async function @@fn@@(@@f@@,@@o@@@@more@@){let @@pre@@@@r@@=@@mk@@(@@o@@?.keepAllLeaves??!1@@mkargs@@),{processEntry:@@add@@,@@rest@@}=@@r@@@@mid@@@@r@@.precede(@@o@@?.precedingEntries??[]);globalThis.__dzSiblings?.(@@f@@,@@add@@);'

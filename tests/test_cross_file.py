@@ -98,6 +98,32 @@ def test_history_and_cross_file_patches_apply_together_to_the_real_build():
     assert b'globalThis.__dzSiblings?.(' in src and b'/*dazzle-claude-code:history-v1*/' in src
 
 
+# The loader's head as each build writes it. 2.1.319 put a local before the map
+# maker's, gave the maker a second argument, and opened a resume-head block between
+# the destructure and precede(); the edit must take both shapes and change neither.
+LOADER_HEADS = {
+    'through-2.1.318': (
+        'async function Wle(e,n){let r=yFt(n?.keepAllLeaves??!1),{processEntry:s,artifactCommentMonitors:h,'
+        'artifactAutoReactLedgers:y}=r;r.precede(n?.precedingEntries??[]);', 's'),
+    '2.1.319': (
+        'async function aZ(e,n){let r=n?.resumeHeadTrial,s=VUt(n?.keepAllLeaves??!1,r!==void 0),{processEntry:h,'
+        'artifactCommentMonitors:y,artifactAutoReactLedgers:S}=s,w=n?.resumeHead?QBt():void 0,N;'
+        'if(w==="verify"&&n?.precedingEntries?.length)try{N=Ri(n.precedingEntries)}catch(ve){N=F(ve)}'
+        's.precede(n?.precedingEntries??[]);', 'h'),
+}
+
+
+@pytest.mark.parametrize('shape', list(LOADER_HEADS))
+def test_the_loader_edit_keeps_the_head_as_written_and_appends_the_sibling_call(shape):
+    head, add = LOADER_HEADS[shape]
+    source = ('function other(){return 1}' + head + 'let S=De(process.env.X);return r.finish()}').encode()
+    res = engine.locate(spec.load(J), source)
+    assert res.status == 'applies', res.detail
+    (site,) = res.edits[0].sites
+    assert site.before == head                                         # nothing of the head is lost
+    assert site.after == head + f'globalThis.__dzSiblings?.(e,{add});'
+
+
 def test_every_file_that_names_ojura_credits_it():
     named = [p for p in ROOT.joinpath('dcc_patcher').rglob('*')          # the patches live in the package
              if p.is_file() and p.suffix in ('.py', '.toml', '.md') and 'ojura' in p.read_text(encoding='utf-8')]
