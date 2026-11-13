@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9] - 2026-11-13
+
+### Fixed
+
+- **The flicker-free banner patch applies on Claude Code 2.1.323 again.** The patch finds its module by a status message printed beside the fullscreen header, `Using flicker-free rendering`. The fullscreen tips say the same words after a leading space, and until 2.1.322 both lived in one module. 2.1.323 moved the header and its status line into a small module of their own, so the words named two modules and the patch refused to choose. The launcher saw `patch B2 needs attention; running stock` and ran stock Claude Code, as designed. The marker now starts at the message's opening quote, which only the header's module has, on every saved original from 2.1.278 to 2.1.323. Neither edit changed.
+
+### Changed
+
+- Every patch applies unchanged on Claude Code 2.1.321 and 2.1.322 (the launcher built each on its own) and on 2.1.323 with the refreshed marker (`dcc-patcher check` on the saved originals, 2.1.278 to 2.1.323).
+
 ## [0.2.8] - 2026-11-06
 
 ### Fixed
@@ -255,7 +265,8 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.8...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.9...HEAD
+[0.2.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.5...v0.2.6
