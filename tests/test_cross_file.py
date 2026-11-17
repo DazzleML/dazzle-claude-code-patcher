@@ -110,6 +110,13 @@ LOADER_HEADS = {
         'artifactCommentMonitors:y,artifactAutoReactLedgers:S}=s,w=n?.resumeHead?QBt():void 0,N;'
         'if(w==="verify"&&n?.precedingEntries?.length)try{N=Ri(n.precedingEntries)}catch(ve){N=F(ve)}'
         's.precede(n?.precedingEntries??[]);', 'h'),
+    # 2.1.326 gave the maker a third argument, one that holds a parenthesised group.
+    '2.1.326': (
+        'async function xse(e,n){let r=n?.resumeHeadTrial,a=men(n?.keepAllLeaves??!1,r!==void 0,'
+        'r===void 0&&!(n?.keepAllLeaves??!1)),{processEntry:h,'
+        'artifactCommentMonitors:y,artifactAutoReactLedgers:k}=a,v=n?.resumeHead?UJt():void 0,F;'
+        'if(v==="verify"&&n?.precedingEntries?.length)try{F=Vi(n.precedingEntries)}catch(ve){F=L(ve)}'
+        'a.precede(n?.precedingEntries??[]);', 'h'),
 }
 
 

@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.10] - 2026-11-17
+
+### Fixed
+
+- **The cross-file history patch applies on Claude Code 2.1.326 again.** Its one edit anchors on the head of Claude Code's session-file loader and carries the entry map maker's extra arguments as written. 2.1.326 gave the maker a third argument that holds a parenthesised group, which the edit's pattern did not allow, so it found no site. The launcher saw `patch J needs attention; running stock` and ran stock Claude Code, as designed. The pattern now takes one level of parentheses inside the maker's extra arguments and still reproduces them as written, so it applies on every saved original from 2.1.278 to 2.1.326. Nothing in what the patch does changed.
+
+### Changed
+
+- Every patch applies unchanged on Claude Code 2.1.325 (the launcher built it on its own) and on 2.1.326 with the refreshed anchor (`dcc-patcher check` on the saved originals, 2.1.278 to 2.1.326).
+
 ## [0.2.9] - 2026-11-13
 
 ### Fixed
@@ -265,7 +275,8 @@ The first tagged release, on PyPI: `pip install dazzle-claude-code-patcher`. It 
 - `dcc_patcher` package with a `dcc-patcher` command (placeholder; the engine is not built yet).
 - README, roadmap, and platform support notes.
 
-[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.9...HEAD
+[Unreleased]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.10...HEAD
+[0.2.10]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/DazzleML/dazzle-claude-code-patcher/compare/v0.2.6...v0.2.7

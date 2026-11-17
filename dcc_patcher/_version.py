@@ -18,14 +18,14 @@ Version levels:
 # Version components - edit these for version bumps
 MAJOR = 0
 MINOR = 2
-PATCH = 9
+PATCH = 10
 PHASE = ""  # Per-MINOR feature set: "" (stable), "alpha", "beta", "rc1", etc.
 
 # Project-level phase (independent of version phase)
 PROJECT_PHASE = ""  # "prealpha", "alpha", "beta", "stable", or ""
 
 # Auto-updated by git hooks - do not edit manually
-__version__ = "0.2.9_main_28-20261113-748141d2"
+__version__ = "0.2.10_main_29-20261117-588b1e50"
 __app_name__ = "dazzle-claude-code-patcher"
 
 
