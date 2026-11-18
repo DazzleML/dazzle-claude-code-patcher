@@ -2,7 +2,7 @@
 
 For one patch and one module source the engine answers, per edit, one of
 
-    APPLIES          found exactly `expect` times
+    APPLIES          found exactly `expect` times (one of them, when `expect` lists several)
     AMBIGUOUS        found, but not `expect` times
     MISSING          not found
     LANDMARK-GONE    the landmark that scopes the edit is not in the module
@@ -39,7 +39,7 @@ class EditResult:
     name: str
     status: str
     count: int
-    expect: int
+    expect: int | tuple[int, ...]
     sites: list[Site] = field(default_factory=list)
     detail: str = ''
 
@@ -119,10 +119,11 @@ def _one_edit(e, text: str, captured: dict) -> EditResult:
     if spans is None:
         return EditResult(e.name, LANDMARK_GONE, 0, e.expect, detail=f'landmark {e.near!r} not found')
     found = _matches(regex, text, spans)
-    if len(found) != e.expect:
+    accepted = e.expect if isinstance(e.expect, tuple) else (e.expect,)
+    if len(found) not in accepted:
         status = MISSING if not found else AMBIGUOUS
         return EditResult(e.name, status, len(found), e.expect,
-                          detail=f'found {len(found)}, expected {e.expect}')
+                          detail=f'found {len(found)}, expected {" or ".join(map(str, accepted))}')
     for name in regex.groupindex:
         values = {m.group(name) for m in found}
         captured[name] = values.pop() if len(values) == 1 else None

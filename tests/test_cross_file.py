@@ -117,6 +117,18 @@ LOADER_HEADS = {
         'artifactCommentMonitors:y,artifactAutoReactLedgers:k}=a,v=n?.resumeHead?UJt():void 0,F;'
         'if(v==="verify"&&n?.precedingEntries?.length)try{F=Vi(n.precedingEntries)}catch(ve){F=L(ve)}'
         'a.precede(n?.precedingEntries??[]);', 'h'),
+    # 2.1.327 added a fourth, with calls nested two deep.
+    '2.1.327': (
+        'async function Hte(e,n){let o=n?.resumeHeadTrial,u=Tnn(n?.keepAllLeaves??!1,o!==void 0,'
+        'o===void 0&&!(n?.keepAllLeaves??!1),ft(kC(e,".jsonl"))??void 0),{processEntry:h,'
+        'artifactCommentMonitors:y,artifactAutoReactLedgers:k}=u,E=n?.resumeHead?rtn():void 0,F;'
+        'if(E==="verify"&&n?.precedingEntries?.length)try{F=ga(n.precedingEntries)}catch(be){F=L(be)}'
+        'u.precede(n?.precedingEntries??[]);', 'h'),
+    # Not a shipped build: arguments nested deeper than any seen, so the next one of
+    # this kind does not cost a release.
+    'deeper-than-seen': (
+        'async function Zz(e,n){let u=Tnn(n?.keepAllLeaves??!1,a(b(c(d(e,{x:[1,2]})))),"),{"),'
+        '{processEntry:h,artifactCommentMonitors:y}=u;u.precede(n?.precedingEntries??[]);', 'h'),
 }
 
 

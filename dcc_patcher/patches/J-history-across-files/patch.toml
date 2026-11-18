@@ -36,8 +36,10 @@ name = "loader: add the sibling files' messages before this file's own"
 # before the map maker's, gives the maker a second argument, and opens a resume-head
 # block (a tail-load trial, switched off on Windows) between the destructure and
 # precede(). @@pre@@, @@mkargs@@ and @@mid@@ carry those three verbatim, empty on
-# the earlier builds, so both shapes apply and neither is rewritten. 2.1.326 gives
-# the maker a third argument that holds a parenthesised group, so @@mkargs@@ takes
-# one level of parentheses inside the maker's extra arguments.
-pattern = 'async function (?P<fn>[\w$]+)\((?P<f>[\w$]+),(?P<o>[\w$]+)(?P<more>(?:,[\w$]+)*)\)\{let (?P<pre>(?:[\w$]+=[^,(){};]*,)*)(?P<r>[\w$]+)=(?P<mk>[\w$]+)\((?P=o)\?\.keepAllLeaves\?\?!1(?P<mkargs>(?:,(?:[^()]|\([^()]*\))*)?)\),\{processEntry:(?P<add>[\w$]+),(?P<rest>[^}]*)\}=(?P=r)(?P<mid>.{0,500}?)(?P=r)\.precede\((?P=o)\?\.precedingEntries\?\?\[\]\);'
+# the earlier builds, so both shapes apply and neither is rewritten. 2.1.326 and
+# 2.1.327 each gave the maker another argument, nested one and then two calls deep,
+# so @@mkargs@@ no longer describes what the arguments look like: it takes whatever
+# follows keepAllLeaves, up to 300 characters, as far as the call's close and the
+# destructure of processEntry that every build has had.
+pattern = 'async function (?P<fn>[\w$]+)\((?P<f>[\w$]+),(?P<o>[\w$]+)(?P<more>(?:,[\w$]+)*)\)\{let (?P<pre>(?:[\w$]+=[^,(){};]*,)*)(?P<r>[\w$]+)=(?P<mk>[\w$]+)\((?P=o)\?\.keepAllLeaves\?\?!1(?P<mkargs>(?:,.{0,300}?)?)\),\{processEntry:(?P<add>[\w$]+),(?P<rest>[^}]*)\}=(?P=r)(?P<mid>.{0,500}?)(?P=r)\.precede\((?P=o)\?\.precedingEntries\?\?\[\]\);'
 replace = 'async function @@fn@@(@@f@@,@@o@@@@more@@){let @@pre@@@@r@@=@@mk@@(@@o@@?.keepAllLeaves??!1@@mkargs@@),{processEntry:@@add@@,@@rest@@}=@@r@@@@mid@@@@r@@.precede(@@o@@?.precedingEntries??[]);globalThis.__dzSiblings?.(@@f@@,@@add@@);'

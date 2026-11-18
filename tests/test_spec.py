@@ -34,10 +34,19 @@ def test_the_compaction_rows_patch_loads_as_one_display_edit():
     ({'replace': '@@nope@@'}, '@@nope@@ is not captured'),
     ({'pattern': 'a(b'}, 'not a valid regex'),
     ({'expect': 0}, 'expect must be a positive integer'),
+    ({'expect': []}, 'expect must be a positive integer'),
+    ({'expect': [1, 0]}, 'expect must be a positive integer'),
+    ({'expect': [1, True]}, 'expect must be a positive integer'),
 ])
 def test_author_mistakes_are_refused_by_name(edit, words):
     with pytest.raises(spec.SpecError, match=words):
         spec.parse(base(**edit))
+
+
+def test_an_edit_may_list_the_counts_different_builds_have():
+    assert spec.parse(base(expect=[2, 1])).edits[0].expect == (1, 2)
+    assert spec.parse(base(expect=[2, 2])).edits[0].expect == 2          # one count is one count
+    assert spec.parse(base()).edits[0].expect == 1
 
 
 def test_a_capture_from_an_earlier_edit_may_be_used_later():

@@ -34,7 +34,7 @@ exit /b 2
 :version
 rem setlocal is safe here: -V changes nothing, so nothing has to outlive the script
 setlocal
-set "DCC_ENV_V=0.2.10"
+set "DCC_ENV_V=0.2.11"
 echo dcc-env %DCC_ENV_V%
 set "DCC_P="
 for /f "tokens=2" %%v in ('dcc-patcher -V 2^>nul') do set "DCC_P=%%v"

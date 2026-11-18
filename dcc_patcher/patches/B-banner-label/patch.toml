@@ -9,9 +9,11 @@ id = "B"
 title = "Banner label"
 issue = "DazzleML/dazzle-claude-code-patcher#1"
 
-# The banner is drawn twice in one component: a truncating form for narrow
-# terminals and a normal one. Both are a bold "Claude Code", a space, and a dim
-# "v" + version. This marker (title then the space) is in that module alone.
+# Through 2.1.326 the banner is written twice in one component: a truncating form
+# for narrow terminals and a normal one. 2.1.327 writes it once and picks the wrap
+# inline. Each copy is a bold "Claude Code", a space, and a dim "v" + version, so
+# the edit labels one copy or two and refuses any other count. This marker (title
+# then the space) is in that module alone.
 # This is the classic header. The header drawn in flicker-free (fullscreen)
 # rendering lives in another module and is labelled by patch B2.
 module_marker = 'bold:!0,children:"Claude Code"})," ",'
@@ -22,4 +24,4 @@ name = "banner: Dazzle title, and the patcher's version after Claude Code's"
 pattern = '(?P<el>[\w$]+)\((?P<T>[\w$]+),\{bold:!0,children:"Claude Code"\}\)," ",(?P<jsx>[\w$]+)\((?P=T),\{dimColor:!0,children:\["v",(?P<ver>[\w$]+)\]\}\)'
 # The separator is a middle dot (code 183), built in JavaScript so the spec stays ASCII.
 replace = '@@el@@(@@T@@,{bold:!0,children:"Dazzle Claude Code"})," ",@@jsx@@(@@T@@,{dimColor:!0,children:["v",@@ver@@," "+String.fromCharCode(183)+" dcc @@dcc_version@@"]})'
-expect = 2
+expect = [1, 2]

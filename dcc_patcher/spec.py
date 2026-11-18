@@ -22,7 +22,8 @@ anchors broke on 6 of the last 7 builds; structural ones held for most edits).
     window = 3000                                # ... and how far around it to look
     pattern = 'let (?P<w>[\\w$]+)=(?P<h>[\\w$]+)\\.parentUuid;...'
     replace = 'let @@w@@=@@h@@.parentUuid;...'
-    expect = 1                                   # matches required, or the patch fails
+    expect = 1                                   # matches required, or the patch fails;
+                                                 # [1, 2] when builds differ: any listed count
 
 A landmark (`near`) scopes a search to `window` characters either side of every
 place the landmark occurs. Patterns are Python regular expressions over the module
@@ -60,7 +61,7 @@ class Edit:
     name: str
     pattern: str
     replace: str
-    expect: int = 1
+    expect: int | tuple[int, ...] = 1     # one count, or the counts different builds have
     near: str | None = None
     window: int = 4000
     debug_only: bool = False
@@ -126,8 +127,11 @@ def parse(raw: dict, where: str = 'spec') -> Patch:
         pattern = _ascii(e['pattern'], f'{at} ({name}) pattern')
         replace = _ascii(e['replace'], f'{at} ({name}) replace')
         expect = e.get('expect', 1)
-        if not isinstance(expect, int) or expect < 1:
-            raise SpecError(f'{at} ({name}): expect must be a positive integer')
+        counts = expect if isinstance(expect, list) else [expect]
+        if not counts or any(not isinstance(c, int) or isinstance(c, bool) or c < 1 for c in counts):
+            raise SpecError(f'{at} ({name}): expect must be a positive integer, or a list of them')
+        if isinstance(expect, list):
+            expect = tuple(sorted(set(counts))) if len(set(counts)) > 1 else counts[0]
         try:
             groups = set(re.compile(PLACEHOLDER.sub('X', pattern)).groupindex)
         except re.error as err:

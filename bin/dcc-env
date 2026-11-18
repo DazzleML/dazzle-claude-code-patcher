@@ -29,7 +29,7 @@ EOF
   ;;
 -V|--version)
   ( # a subshell: this file is sourced, and -V must leave no variables behind
-    DCC_ENV_V=0.2.10
+    DCC_ENV_V=0.2.11
     echo "dcc-env $DCC_ENV_V"
     p="$(dcc-patcher -V 2>/dev/null)"; p="${p#dcc-patcher }"
     if [ -z "$p" ]; then echo "dcc-patcher: not found on PATH"; exit 1; fi
