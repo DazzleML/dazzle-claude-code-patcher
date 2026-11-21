@@ -36,7 +36,13 @@ pattern = 'logicalParentUuid'
 
 [[edit]]
 name = "loader: always parse the lines before the last compaction"
-pattern = '[\w$]+\(process\.env\.CLAUDE_CODE_DISABLE_PRECOMPACT_SKIP\)'
+# The loader reads one switch into a local; on, the lines before the last compaction
+# are parsed like any others. Through 2.1.329 the read was a call on process.env,
+# from 2.1.330 a property of a settings object. The edit takes whatever is assigned
+# from the switch: it starts right after the "=" and ends at the "," or ";" that
+# closes the declarator. A second function (2.1.319 on) tests the same switch inline
+# to decide where a tail load starts; it follows "||", not "=", and is left alone.
+pattern = '(?<==)[\w$.(]*CLAUDE_CODE_DISABLE_PRECOMPACT_SKIP\)?(?=[,;])'
 replace = '!0'
 
 [[edit]]
